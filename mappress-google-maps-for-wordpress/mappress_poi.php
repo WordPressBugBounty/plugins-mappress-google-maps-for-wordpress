@@ -47,14 +47,26 @@ class Mappress_Poi extends Mappress_Obj {
 	function sanitize() {
 		// Numerics
 		if (isset($this->point)) {
-			$this->point->lat = floatval($this->point->lat);
-			$this->point->lng = floatval($this->point->lng);
+			if (is_array($this->point)) {
+				$this->point['lat'] = floatval($this->point['lat']);
+				$this->point['lng'] = floatval($this->point['lng']);
+			} else if (is_object($this->point)) {
+				$this->point->lat = floatval($this->point->lat);
+				$this->point->lng = floatval($this->point->lng);
+			}
 		}
 		if (isset($this->viewport)) {
-			$this->viewport->sw->lat = floatval($this->viewport->sw->lat);
-			$this->viewport->sw->lng = floatval($this->viewport->sw->lng);
-			$this->viewport->ne->lat = floatval($this->viewport->ne->lat);
-			$this->viewport->ne->lng = floatval($this->viewport->ne->lng);
+			if (is_array($this->viewport)) {
+				$this->viewport['sw']['lat'] = floatval($this->viewport['sw']['lat']);
+				$this->viewport['sw']['lng'] = floatval($this->viewport['sw']['lng']);
+				$this->viewport['ne']['lat'] = floatval($this->viewport['ne']['lat']);
+				$this->viewport['ne']['lng'] = floatval($this->viewport['ne']['lng']);
+			} else if (is_object($this->viewport)) {
+				$this->viewport->sw->lat = floatval($this->viewport->sw->lat);
+				$this->viewport->sw->lng = floatval($this->viewport->sw->lng);
+				$this->viewport->ne->lat = floatval($this->viewport->ne->lat);
+				$this->viewport->ne->lng = floatval($this->viewport->ne->lng);
+			}
 		}
 			
 		// Allow iframes in body
