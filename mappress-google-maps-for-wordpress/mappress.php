@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.93
+Version: 2.94.2
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.93';
+	const VERSION = '2.94.2';
 
 	static
 		$api,
@@ -343,6 +343,17 @@ class Mappress {
 			echo str_replace(array("\r", "\n"), array('<br/>', '<br/>'), print_r($options, true));
 			die();
 		}
+		
+		// Can be used to force otype when upgrading from ancient versions
+		//if (isset($_REQUEST['mp_upgrade']) && is_admin()) {
+		//	$maps_table = $wpdb->prefix . 'mapp_maps';
+		//	$mapids = $wpdb->get_col("SELECT mapid FROM $maps_table WHERE otype IS NULL OR otype = ''");
+		//	foreach($mapids as $mapid) {
+		//		$map = Mappress_Map::get($mapid);
+		//		$map->otype = 'post';
+		//		$map->save();
+		//	}
+		//}
 
 		if (isset($_REQUEST['mp_debug']))
 			self::$debug = max(1, (int) $_REQUEST['mp_debug']);
@@ -772,9 +783,9 @@ class Mappress {
 
 		// Global settings
 		$options = array('alignment', 'clustering', 'clusteringOptions', 'country', 'defaultIcon', 'directions', 'directionsList',
-		'directionsPopup', 'directionsServer', 'engine', 'filtersOpen', 'filtersPos', 'geocoder', 'geolocate',
+		'directionsPopup', 'directionsServer', 'engine', 'filter', 'filterMaps', 'filtersOpen', 'filtersPos', 'geocoder', 'geolocate',
 		'highlight', 'highlightIcon', 'iconScale', 'initialOpenInfo', 'layout', 'lines', 'lineOpts',
-		'mashupClick', 'menuControl', 'mini', 'poiList', 'poiListKml', 'poiListOpen', 'poiListPageSize', 'poiListViewport', 'poiZoom', 'radius', 'scrollWheel', 'search',
+		'mashupClick', 'menuControl', 'mini', 'poiList', 'poiListKml', 'poiListOpen', 'poiListPageSize', 'poiListViewport', 'poiZoom', 'radius', 'scrollWheel', 'search', 'searchMaps',
 		'searchBox', 'searchParam', 'searchPlaceholder', 'size', 'sizes', 'sort', 'streetViewControl', 'style', 'thumbHeight', 'thumbWidth', 'thumbs', 'thumbsList', 'thumbsPopup', 
 		'tooltips', 'units', 'userLocation');
 
@@ -1174,6 +1185,8 @@ class Mappress {
 
 			if (is_object($value) || is_array($value))
 				$results[] = sprintf("%s='%s'", $lcname, json_encode($value, JSON_HEX_APOS));
+			else if (is_bool($value))
+				$results[] = sprintf("%s='%s'", $lcname, ($value) ? 'true' : 'false');
 			else
 				$results[] = "$lcname='" . str_replace(array("'", '"'), array('&apos;', '&quot;'), $value) . "'";
 		}

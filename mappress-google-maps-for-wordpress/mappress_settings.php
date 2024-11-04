@@ -21,7 +21,8 @@ class Mappress_Options extends Mappress_Obj {
 		$directionsPopup = true,
 		$directionsServer = 'https://maps.google.com',
 		$engine = 'leaflet',
-		$filter,					// deprecated
+		$filter = true,	
+		$filterMaps = false,
 		$filters = array('poi' => array(), 'post' => array(), 'user' => array()),
 		$filtersOpen = false,
 		$filtersPos = 'top',
@@ -60,6 +61,7 @@ class Mappress_Options extends Mappress_Obj {
 		$radius = 15,
 		$scrollWheel = true,
 		$search = true,
+		$searchMaps = false,
 		$searchBox,
 		$searchParam,
 		$searchPlaceholder,

@@ -547,7 +547,7 @@ class Mappress_Map extends Mappress_Obj {
 		$maps_table = $wpdb->prefix . 'mapp_maps';
 
 		// Filter out poi field data that is no longer present in settings
-		foreach($this->pois as &$poi) {
+		foreach($this->pois as &$poi) {		
 			if (Mappress::$options->poiFields) {
 				$keys = array_map(function($entry) { return $entry['key']; }, Mappress::$options->poiFields);
 				$data = (array) $poi->data;

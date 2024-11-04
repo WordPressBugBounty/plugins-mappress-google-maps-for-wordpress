@@ -482,12 +482,12 @@
 */
 
 .mapp-settings {
-	overflow: hidden;
+	overflow: auto;
 }
 
 .mapp-settings-row {
 	display: flex;
-	margin-bottom: 15px;
+	margin-bottom: 10px;
 }
 
 .mapp-settings-title {
@@ -653,8 +653,8 @@ button.mapp-query-refresh {
 }
 
 .mapp-poi-header {
-	display: flex;
 	align-items: center;
+	display: flex;
 }
 
 .mapp-poi-title {
