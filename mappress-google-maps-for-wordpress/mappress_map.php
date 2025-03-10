@@ -32,7 +32,10 @@ class Mappress_Map extends Mappress_Obj {
 
 	var $pois = array();
 
-	function to_html() {
+	function to_html() {      
+		// Map is sanitized on both display and save, since attributes may come from shortcode values
+		$this->sanitize();
+		
 		// Exclude a few fields that don't need to be in the web component (pois are determined later)
 		$vars = array_diff_key(get_object_vars($this), array('otitle' => '', 'pois' => '', 'status' => '', 'title' => ''));
 
@@ -78,9 +81,13 @@ class Mappress_Map extends Mappress_Obj {
 		);
 	}
 
-	function sanitize() {
+	function sanitize($saving = false) {
+		// Note that most map fields aren't output as attributes, and width/height are parsed to numeric on output
 		$this->name = sanitize_text_field($this->name);
-		$this->title = sanitize_text_field($this->title);
+		$this->title = sanitize_text_field($this->title);            
+
+		foreach($this->pois as &$poi)
+			$poi->sanitize($saving);
 	}
 
 	function __construct($atts = null) {
@@ -91,7 +98,6 @@ class Mappress_Map extends Mappress_Obj {
 			if (!$poi instanceof Mappress_Poi)
 				$this->pois[$index] = new Mappress_Poi($poi);
 		}
-		$this->sanitize();
 	}
 
 	static function register() {
@@ -546,17 +552,20 @@ class Mappress_Map extends Mappress_Obj {
 		global $wpdb;
 		$maps_table = $wpdb->prefix . 'mapp_maps';
 
-		// Filter out poi field data that is no longer present in settings
 		foreach($this->pois as &$poi) {		
+			// Filter out poi field data that is no longer present in settings
 			if (Mappress::$options->poiFields) {
 				$keys = array_map(function($entry) { return $entry['key']; }, Mappress::$options->poiFields);
 				$data = (array) $poi->data;
 				$poi->data = (object) array_intersect_key($data, array_combine($keys, $keys));
 			} else {
 				$poi->data = null;
-			}
-		}
+			}			
+		}        
 
+		// Sanitize
+		$this->sanitize(true);
+		
 		$obj = json_encode($this->to_json());
 		
 		// Insert if no ID, else update

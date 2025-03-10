@@ -585,10 +585,10 @@ class Mappress_Settings {
 			$allowed_html = wp_kses_allowed_html('post');            
 			foreach($poi_fields as &$field) {
 				if (isset($field['key']))
-					$field['key'] = wp_kses($field['key'], $allowed_html);
+					$field['key'] = wp_kses(html_entity_decode($field['key'], ENT_QUOTES, 'UTF-8'), $allowed_html);
 				
 				if (isset($field['label']))
-					$field['label'] = wp_kses($field['label'], $allowed_html);
+					$field['label'] = wp_kses(html_entity_decode($field['label'], ENT_QUOTES, 'UTF-8'), $allowed_html);
 			}
 		}
 		return $poi_fields;

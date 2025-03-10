@@ -338,7 +338,6 @@ __("Select");
 __("Name");
 __("Label");
 __("Format");
-__("Show in popups");
 __("Value");
 __("Values");
 __("Styled Maps");
