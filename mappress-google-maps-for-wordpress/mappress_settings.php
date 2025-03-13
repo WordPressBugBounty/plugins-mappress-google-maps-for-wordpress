@@ -302,7 +302,15 @@ class Mappress_Settings {
 		// Sanitize POI fields
 		if (isset($settings->poiFields)) 
 			$settings->poiFields = self::sanitize_poi_fields($settings->poiFields);
-		
+			
+		// Sanitize dimensions
+		if (isset($settings->sizes)) {
+			foreach($settings->sizes as $key => &$size) {
+				$size['width'] = self::sanitize_dims($size['width']);
+				$size['height'] = self::sanitize_dims($size['height']);
+			}
+		}
+			
 		// Merge in old values so they're not lost, e.g. stylesMapbox and stylesGoogle
 		$options = Mappress_Options::get();
 		$options->update($settings);
@@ -580,6 +588,16 @@ class Mappress_Settings {
 		<?php
 	}
 	
+	static function sanitize_dims($dim) {
+		if (!$dim)
+			return $dim;
+			
+		$suffix = 'px';
+		foreach(array('%', 'vh', 'vw') as $s)
+			$suffix = (is_string($dim) && stristr($dim, $s)) ? $s : $suffix;
+		return floatval($dim) . $suffix;
+	}
+		
 	static function sanitize_poi_fields($poi_fields) {
 		if (isset($poi_fields) && is_array($poi_fields)) {
 			$allowed_html = wp_kses_allowed_html('post');            

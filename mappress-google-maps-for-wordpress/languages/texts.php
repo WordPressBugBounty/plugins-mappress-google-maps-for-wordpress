@@ -380,7 +380,7 @@ __("Custom search placeholder");
 __("Leave blank for default");
 __("Search country");
 __("Country code for searches");
-__("URL parameter");
+__("Search URL parameter");
 __("Bounding box");
 __("Restrict searches to a bounding box (optional)");
 __("Geolocate");
