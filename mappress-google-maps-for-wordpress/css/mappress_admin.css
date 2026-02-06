@@ -122,6 +122,8 @@
 }
 
 
+
+
 .mapp-pick-content {
 	background-color: white;
 	display: flex;
@@ -289,7 +291,12 @@
 }     
 
 .mapp-pick-col-actions {
+	display: none;
 	text-align: right;
+}
+
+.mapp-pick-item:hover .mapp-pick-col-actions, .mapp-pick-item.mapp-selected .mapp-pick-col-actions {
+	display: block;
 }
 
 .mapp-pick-item-actions, .mapp-pick-bulk-actions {
@@ -297,22 +304,6 @@
 	color: #a8a8a8;
 	display: flex;
 	gap: 10px;
-}
-
-.mapp-pick-action {
-	border-radius: 20px;
-	cursor: pointer;
-	padding: 8px;
-	user-select: none;
-}
-
-.mapp-pick-action:hover {
-	background-color: rgba(0,0,0,0.05);
-	color: black;
-}
-
-.mapp-pick-action:active {
-	background-color: rgba(0,0,0,0.1);
 }
 
 .mapp-pick-toolbar {
@@ -403,11 +394,6 @@
 	padding-bottom: 0px !important;
 }
 
-.mapp-edit-toolbar .components-toggle-control {
-	margin-bottom: 0;
-	margin-left: 50px;
-}
-
 .mapp-edit-toolbar button {
 	margin-right: 6px;
 }
@@ -424,6 +410,31 @@
 	border-bottom: 1px solid black !important;
 	border-top: 1px solid black !important;
 }
+	
+/* font setting on mapp-layout interferes with dashicons */
+.mapp-edit .dashicons {
+	font-family: 'dashicons';
+}
+
+/* Customize IW/IB */
+.mapp-edit .mapp-ib-wrapper {
+	height: 400px !important;
+	max-height: calc(100% - 80px);
+	max-width: 80%;
+	width: 600px !important;
+}
+
+.mapp-edit .mapp-ib-content {
+	flex: 1;
+	overflow: hidden;
+}
+
+.mapp-edit .mapp-ib {
+	flex: 1;
+	overflow: hidden;
+	padding: 0 15px 10px 15px;
+}
+
 	
 
 /*
@@ -502,7 +513,6 @@
 .mapp-settings-dims-custom input {
 	width: 100%;
 }
-
 
 .mapp-settings-viewport .components-button-group {
 	display: block;
@@ -595,30 +605,6 @@ button.mapp-query-refresh {
 	-----------------------------------------------------------------------------------
 */
 
-/* font setting on mapp-layout interfers with dashicons */
-.mapp-edit .dashicons {
-	font-family: 'dashicons';
-}
-
-/* Customize IW/IB */
-.mapp-edit .mapp-ib-wrapper {
-	height: 400px !important;
-	max-height: calc(100% - 80px);
-	max-width: 80%;
-	width: 600px !important;
-}
-
-.mapp-edit .mapp-ib-content {
-	flex: 1;
-	overflow: hidden;
-}
-
-.mapp-edit .mapp-ib {
-	flex: 1;
-	overflow: hidden;
-	padding: 0 15px 10px 15px;
-}
-
 .mapp-poi-edit {
 	display: flex;
 	flex: 1;
@@ -627,7 +613,7 @@ button.mapp-query-refresh {
 }
 
 /* Custom tabs - flex all the way down */
-.mapp-edit .mapp-poi-tabs {
+.mapp-poi-edit .mapp-poi-tabs {
 	display: flex;
 	flex: 1;
 	flex-direction: column;
@@ -691,6 +677,10 @@ button.mapp-query-refresh {
 	display: flex;
 	justify-content: space-between;
 	margin-top: 10px;
+}
+
+.mapp-poi-actions {
+	display: flex;
 }
 
 .mapp-poi-toolbar button {
@@ -789,19 +779,19 @@ button.mapp-query-refresh {
 	-----------------------------------------------------------------------------------
 */
 
-.mapp-iw .mapp-mce-visual, .mapp-iw .mapp-mce-html {
+.mapp-poi-edit .mapp-mce-visual, .mapp-poi-edit .mapp-mce-html {
 	cursor: pointer;
 	display: inline-block;
 	padding: 5px !important;
 }
 
-.mapp-iw .mapp-mce-tabs a { font-size: 12px; }
+.mapp-poi-edit .mapp-mce-tabs a { font-size: 12px; }
 
-.mapp-iw .mapp-mce-tabs a.mapp-active, .mapp-iw .mapp-mce-tabs a.mapp-active:hover {
+.mapp-poi-edit .mapp-mce-tabs a.mapp-active, .mapp-poi-edit .mapp-mce-tabs a.mapp-active:hover {
 	font-weight: bold;
 }
 
-.mapp-iw .mapp-mce-visual:hover, .mapp-iw .mapp-mce-html:hover {
+.mapp-poi-edit .mapp-mce-visual:hover, .mapp-poi-edit .mapp-mce-html:hover {
 	background-color: #e9f0f5;
 }
 
@@ -2765,6 +2755,14 @@ a.mapp-deactivate-help {
 }
 
 @font-face {
+	font-family: 'Material Symbols';
+	font-style: normal;
+	font-weight: 400;
+	src: url(https://fonts.gstatic.com/s/materialsymbols/v37/d6kSkb-sS9m3-i1LgQNcsFOOuLQXvG559b5GLMxCWRtThFK5gn7xw7XblIl2peTfMb7ONaa2_wzcUHR1Ukiw2RYw2vadH3BFk0G4701x-cU0BaNVXEDuQA.woff2) format('woff2');	
+	font-display: block;
+}
+
+@font-face {
 	font-family: 'Marker Icons';
 	src: url('../pro/fonts/mapp-icons.woff?v=1.0.0');
 	font-display: block;
@@ -2776,11 +2774,12 @@ a.mapp-deactivate-help {
 	font-display: block;
 }
 
-.mapp-marker-icons, .material-icons, .mapp-marker-shapes {
+.mapp-marker-icons, .material-icons, .material-symbols, .mapp-marker-shapes {
 	-webkit-font-feature-settings: 'liga';
 	-webkit-font-smoothing: antialiased;
 }
 .material-icons { font-family: 'Material Icons'; }
+.material-symbols { font-family: 'Material Symbols'; }
 .mapp-marker-icons { font-family: 'Marker Icons'; }
 .mapp-marker-shapes { font-family: 'Marker Shapes'; }
 
@@ -2820,6 +2819,31 @@ a.mapp-deactivate-help {
 	Misc
 	-----------------------------------------------------------------------------------
 */
+
+/* Actions are used in map picker and in poi editor */
+.mapp-action {
+	border-radius: 20px;
+	cursor: pointer;
+	padding: 8px;
+	user-select: none;
+}
+
+.mapp-action:hover {
+	background-color: rgba(0,0,0,0.05);
+}
+
+.mapp-action:active {
+	background-color: rgba(0,0,0,0.1);
+}
+
+.mapp-action .dashicon {
+	color: #a8a8a8;        
+	font-size: 20px;
+}
+
+.mapp-action:hover .dashicon {
+	color: black;
+}
 
 .mapp-snackbar {
 	background-color: #333;
