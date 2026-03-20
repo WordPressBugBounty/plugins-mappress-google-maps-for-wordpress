@@ -44,11 +44,18 @@ class Mappress_WPML {
 
 	// WPML Duplicate
 	static function copy_maps($new_post_id, $fields, $job) {
-
+										  
 		$src_postid = $job->original_doc_id;
 		$postid = $new_post_id;
 
 		$lang =  apply_filters( 'wpml_post_language_details', NULL, $postid);
+		
+		// One user reported a mysterious error here
+		if (is_wp_error($lang)) {
+			print_r($lang);
+			return;
+		}
+		
 		$lang = $lang['language_code'];
 
 		$post = get_post($postid);

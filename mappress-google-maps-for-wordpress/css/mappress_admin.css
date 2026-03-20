@@ -121,9 +121,6 @@
 	padding: 0 15px;
 }
 
-
-
-
 .mapp-pick-content {
 	background-color: white;
 	display: flex;
@@ -2145,20 +2142,28 @@ button.mapp-icons-edit-set-color {
 
 /* Style control in map editor */
 .mapp-edit .mapp-style-toggle {
-	background-color: white;
 	position: absolute;
 	top: 125px; right: 20px;
 	z-index: 1000;					/* Keep control above Leaflet map */
 }
 
-button.mapp-style-toggle {
-	height: auto;
+.mapp-style-toggle {
+	border: 2px solid black;
+	height: 52px;
+	outline: 2px solid white;   
+	width: 52px;    
+	padding: 0 !important;          /* Override intrusive WP styling */
+}
+
+.mapp-style-toggle:hover {
+	border: 3px solid black;
+	outline: 3px solid white;
 }
 
 .mapp-style-toggle img {
-	height: 40px;
-	object-fit: cover;
-	width: 40px;
+	height: 100%;
+	object-fit: fill;
+	width: 100%;
 }
 
 .mapp-style-modal {
@@ -2484,6 +2489,10 @@ a.mapp-templates-item {
 	display : block;
 }
 
+.mapp-import button.mapp-import-submit {
+	margin-top: 10px;
+}
+
 .mapp-import form .mapp-import-info {
 	margin-bottom: 10px;
 }
@@ -2520,9 +2529,7 @@ a.mapp-templates-item {
 
 .mapp-import-results {}
 
-.mapp-import-results .components-toggle-control {
-	margin-top: 10px;
-}
+.mapp-import-results .components-toggle-control {}
 
 .mapp-import-results .mapp-import-header {
 	display: flex;
