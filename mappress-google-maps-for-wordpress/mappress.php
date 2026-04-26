@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.96.2
+Version: 2.96.3
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.96.2';
+	const VERSION = '2.96.3';
 
 	static
 		$api,
@@ -721,10 +721,14 @@ class Mappress {
 			'dev' => self::is_dev(),
 			'editurl' => admin_url('post.php'),
 			'iconsUrl' => (self::$pro) ? Mappress_Icons::$icons_url : null,    
-			'isEditor' => ($post && $post->ID) || ($screen && $screen->base == 'site-editor'),
+			//'isEditor' => ($post && $post->ID) || ($screen && $screen->base == 'site-editor'),
+			'isEditor' => $screen && (        
+				(method_exists($screen, 'is_block_editor') && $screen->is_block_editor())       // Gutenberg
+				|| in_array($screen->base, ['post', 'post-new'], true)                          // Classic
+			),
 			'isIE' => $is_IE,
 			'language' => self::get_language(),
-			'liq' => self::get_api_keys()->liq,
+			'liq' => self::get_api_keys()->liq,                      
 			'mapbox' => self::get_api_keys()->mapbox,
 			'nonce' => wp_create_nonce('mappress'),
 			'oid' => ($post) ? $post->ID : null,	// Note: GT => numeric, classic => string
@@ -741,19 +745,12 @@ class Mappress {
 
 		// Tile providers.  Parameter fresh=true was removed with 2.94.8.
 		$l10n['options']['tileProviders'] = array(
-			'ofm' => array(
-				'attribution' => array('<a href="https://openfreemap.org" target="_blank">&copy; OpenFreeMap</a>', '<a href="https://www.openstreetmap.org/about/" target="_blank">&copy; OpenStreetMap</a>'),
-			),                
+			'ofm' => array(	),                
 			'mapbox' => array(
 				'attribution' => ['<a href="https://www.mapbox.com/about/maps" target="_blank">&copy; Mapbox</a>', '<a href="https://www.openstreetmap.org/about/" target="_blank">&copy; OpenStreetMap</a>' ],
 				'url' => '{url}/tiles/256/{z}/{x}/{y}{r}?access_token={token}',
 				'zoomOffset' => 0
 			),
-			// del 2.96
-			//'osm' => array(
-			//	'attribution' => ['<a href="https://openstreetmap.org" target="_blank">&copy; OpenStreetMap</a>'],
-			//	'url' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-			//)
 		);
 		
 		// Default styles
