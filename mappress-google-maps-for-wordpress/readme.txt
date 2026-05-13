@@ -6,7 +6,7 @@ Tags: maps, google maps, leaflet, store locator, map plugin
 Requires at least: 5.9.5
 Requires PHP: 7.0
 Tested up to: 6.9
-Stable tag: 2.96.5
+Stable tag: 2.96.6
 
 MapPress is the easiest way to add unlimited interactive Google and Leaflet maps to WordPress.
 
@@ -92,6 +92,9 @@ Please see the plugin documentation pages:
 1. Follow the installation instructions to install the new version
 
 == Changelog ==
+
+= 2.96.6 = 
+* Fixed: better compatibility with Complianz when using ofm
 
 = 2.96.5 =
 * Fixed: improved click/drag handling inside Gutenberg editor's new content iframe 

@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the MapPress Google Maps and Leaflet Maps plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: MapPress Google Maps and Leaflet Maps 2.96.5\n"
+"Project-Id-Version: MapPress Google Maps and Leaflet Maps 2.96.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mappress-google-maps-for-wordpress\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-04T04:11:44+00:00\n"
+"POT-Creation-Date: 2026-05-11T00:10:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 
@@ -190,7 +190,7 @@ msgid "Copy of %s"
 msgstr ""
 
 #: mappress_api.php:66
-#: mappress_map.php:149
+#: mappress_map.php:150
 #: build/index_mappress_admin.js:1
 msgid "Untitled"
 msgstr ""
@@ -221,24 +221,24 @@ msgstr ""
 msgid "Your map data is up to date."
 msgstr ""
 
-#: mappress_map.php:146
+#: mappress_map.php:147
 msgid "+%d more"
 msgstr ""
 
-#: mappress_map.php:150
+#: mappress_map.php:151
 #: build/index_mappress_admin.js:1
 msgid "Edit map"
 msgstr ""
 
-#: mappress_map.php:154
+#: mappress_map.php:155
 msgid "Attach"
 msgstr ""
 
-#: mappress_map.php:169
+#: mappress_map.php:170
 msgid "Post not found"
 msgstr ""
 
-#: mappress_map.php:182
+#: mappress_map.php:183
 msgid "Post not available"
 msgstr ""
 

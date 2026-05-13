@@ -53,9 +53,10 @@ class Mappress_Map extends Mappress_Obj {
 
 		$atts = Mappress::to_atts($vars);
 		$pois = join('', array_map(function($poi) { return $poi->to_html(); }, $this->pois));
+		$name = (isset($vars['name']) ? $vars['name'] : 'noname');
 		
 		// Extra div forces web component out of phrasing elements like <p>
-		return "<div></div>\r\n<mappress-map {$atts}>\r\n$pois\r\n</mappress-map>\r\n";
+		return "<div></div>\r\n<mappress-map id={$name} {$atts}>\r\n$pois\r\n</mappress-map>\r\n";
 	}
 
 	function to_json() {
@@ -343,7 +344,6 @@ class Mappress_Map extends Mappress_Obj {
 			
 			// Last chance to alter map before display
 			do_action('mappress_map_display', $this);
-
 			Mappress::scripts_enqueue();
 			return $this->to_html();
 		}
