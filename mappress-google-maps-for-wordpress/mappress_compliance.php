@@ -20,23 +20,34 @@ class Mappress_Compliance {
 	}
 
 	static function clear_complianz_cache() {
-		delete_transient('cmplz_blocked_scripts');
-	}
-
+		// Refresh MapPress options so we have the latest
+		Mappress::$options = Mappress_Options::get();   
+			 
+		// Complianz uses its own cache, not standard WP transients
+		if ( function_exists( 'cmplz_delete_transient' ) ) {
+			cmplz_delete_transient( 'cmplz_blocked_scripts' );
+		}
+	}    
+	
 	static function cmplz_script( $tags ) {
-		if (Mappress::$options->iframes) {
-			// Iframes
-			$tags[] = array(
-				'name' => 'mappress iframes',
-				'urls' => array(
-					'mappress=embed',
-				),
-				'category' => 'marketing',
-				'iframe' => 1,
-			);
+		// OpenFreeMap + Leaflet: OFM does not track users and sets no cookies, so no consent required
+		if (Mappress::$options->engine == 'leaflet' && Mappress::get_tile_service() == 'ofm') {
+			return $tags;
 		}
 
-		else if (Mappress::$options->engine == 'google') {
+		// Iframe with google or mapbox
+		if (Mappress::$options->iframes) {
+			$tags[] = array(
+				'name'        => 'mappress',
+				//'placeholder' => 'google-maps',   // causes disconcerting flash before iframe loads
+				'urls'        => array('mappress=embed'),
+				'category'    => 'marketing',
+				'iframe'      => 1,
+			);
+			return $tags;
+		}
+		
+		if (Mappress::$options->engine == 'google') {
 			// Google Maps — requires consent (tracks users)
 			// maps.googleapis.com is loaded dynamically by index_mappress.js (not a WP-enqueued script),
 			// so we only block index_mappress.js. No placeholder — Complianz fires it automatically on consent.
@@ -47,23 +58,17 @@ class Mappress_Compliance {
 					'build/index_mappress',
 				),
 			);
-		}
-
-		else if (Mappress::$options->engine == 'leaflet' && Mappress::get_tile_service() == 'ofm') {
-			// OpenFreeMap + Leaflet: OFM does not track users and sets no cookies.
-			// No consent is required — do not register with Complianz so scripts load freely.
 			return $tags;
-			}
+		}
 
 		else {
 			// Leaflet with Mapbox tiles (or other non-OFM tile service) — Mapbox may track
 			$dependency = array();
-
-				if (Mappress::$options->clustering) {
-					$dependency = [
-						'leaflet.js'             => 'leaflet.markercluster.js',
+			if (Mappress::$options->clustering) {
+				$dependency = [
+					'leaflet.js' => 'leaflet.markercluster.js',
 					'leaflet.markercluster.js' => 'index_mappress.js',
-					];
+				];
 			}
 
 			// Without clustering, still ensure leaflet loads before index_mappress
@@ -83,7 +88,8 @@ class Mappress_Compliance {
 				'enable_dependency' => true,
 				'dependency' => $dependency,
 			);
-		}
+			return $tags;
+		}        
 
 		return $tags;
 	}

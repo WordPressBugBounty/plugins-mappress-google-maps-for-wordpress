@@ -104,9 +104,6 @@ class Mappress_Options extends Mappress_Obj {
 		if (Mappress_Settings::iframes_required())
 			$options['iframes'] = true;
 
-		if (isset($_REQUEST['mp_iframes']))
-			$options['iframes'] = ($_REQUEST['mp_iframes']) ? true : false;
-
 		return new Mappress_Options($options);
 	}
 
@@ -141,7 +138,9 @@ class Mappress_Settings {
 		if (!current_user_can('manage_options'))
 			Mappress::ajax_response('Not authorized');
 
-		$args = json_decode(wp_unslash($_POST['data']));
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+			if (!$args) Mappress::ajax_response('Missing data');
+
 		$batch_size = $args->batch_size;
 		$otype = $args->otype;
 		$start = $args->start;
@@ -156,16 +155,19 @@ class Mappress_Settings {
 			Mappress::ajax_response('OK', array('logs' => array(), 'errors' => array()));
 
 		// Get all meta keys for otype, as a quoted, comma-separated list to be used in sql
-		$string_keys = array_map(function($key) { return "'$key'"; }, $keys);
-		$string_keys = join(',', $string_keys);
-		$meta_table = ($otype == 'post') ? $wpdb->postmeta : $wpdb->usermeta;
+		$keys = array_map(function($k) { return "'" . esc_sql($k) . "'"; }, $keys);
+		$string_keys = join(',', $keys);
 
+		$meta_table = ($otype == 'post') ? $wpdb->postmeta : $wpdb->usermeta;
+		
 		// Read all objects with at least ONE of the mapped keys
 		$where = " WHERE meta_key IN ($string_keys)"; 
 		$limit = sprintf(" LIMIT %d, %d", $start, $batch_size);        
 		
 		if ($otype == 'post') {
-			$where .= " AND $wpdb->posts.post_type IN ('" .  implode("', '", Mappress::$options->postTypes) . "')";
+			$post_types = Mappress::$options->postTypes;
+			$placeholders = implode(',', array_fill(0, count($post_types), '%s'));
+			$where .= $wpdb->prepare(" AND $wpdb->posts.post_type IN ($placeholders) ", $post_types);
 			$sql = "SELECT DISTINCT post_id AS oid, post_title AS title FROM $wpdb->postmeta INNER JOIN $wpdb->posts ON $wpdb->postmeta.post_id = $wpdb->posts.ID $where $limit";
 		} else {
 			$sql = "SELECT DISTINCT user_id AS oid, user_nicename AS title FROM $wpdb->usermeta INNER JOIN $wpdb->users ON $wpdb->usermeta.user_id = $wpdb->users.ID $where $limit";
@@ -183,10 +185,11 @@ class Mappress_Settings {
 		// Get errors only when finished
 		$errors = (count($logs) < $batch_size) ? self::get_geocoding_errors($otype) : array();
 
-		// For testing, mp_geocode=10 will stop after 10 rows processed
-		if (isset($_REQUEST['mp_geocode']) && $start > $_REQUEST['mp_geocode'])
-			Mappress::ajax_response('OK', array('logs' => array(), 'errors' => $errors));
-
+		// For testing - mp_geocode=10 will stop after 10 rows processed
+		$mp_geocode_limit = isset($_REQUEST['mp_geocode']) ? absint($_REQUEST['mp_geocode']) : 0;
+		if ($mp_geocode_limit && $start > $mp_geocode_limit)
+			Mappress::ajax_response('OK', array('logs' => array(), 'errors' => $errors));      
+			  
 		Mappress::ajax_response('OK', array('logs' => $logs, 'errors' => $errors));
 	}
 
@@ -195,14 +198,13 @@ class Mappress_Settings {
 
 		if (!current_user_can('manage_options'))
 			Mappress::ajax_response('Not authorized');
-
-		$args = json_decode(wp_unslash($_POST['data']));
-		$license = $args->license;
-		if (!$license)
-			Mappress::ajax_response('Internal error, missing license!');
-
+															  
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+		if (!$args || !isset($args->license)) 
+			Mappress::ajax_response('Missing data');
+			
 		ob_start();
-		$status = Mappress::$updater->check($license);
+		$status = Mappress::$updater->check($args->license);
 		Mappress::ajax_response('OK', $status);
 	}
 
@@ -211,8 +213,8 @@ class Mappress_Settings {
 		if (!current_user_can('manage_options'))
 			Mappress::ajax_response('Not authorized');
 
-		$args = json_decode(wp_unslash($_POST['data']));
-		if (!$args->id)
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+		if (!$args || !isset($args->id))
 			Mappress::ajax_response('Missing style ID');
 
 		$options = Mappress_Options::get();
@@ -233,13 +235,14 @@ class Mappress_Settings {
 
 		$args = json_decode(wp_unslash($_POST['data']));
 		$style = $args->style;
-		if (!$style)
-			Mappress::ajax_response('Missing style');
+		if (!$style || !is_object($style))
+			Mappress::ajax_response('Missing style');    
+			
 		$options = Mappress_Options::get();
 		$setting = ($options->engine == 'google') ? 'stylesGoogle' : 'stylesMapbox';
 
 		// Update if style has an ID, otherwise treat it as new.  New Snazzy styles have an ID, otherwise assign uniqid
-		$id = ($style->id) ? $style->id : null;
+		$id = (isset($style->id) && $style->id) ? $style->id : null;        
 		$i = ($id) ? array_search($id, array_column($options->$setting, 'id')) : false;
 
 		if ($i === false) {
@@ -258,14 +261,16 @@ class Mappress_Settings {
 		if (!current_user_can('manage_options'))
 			Mappress::ajax_response('Not authorized');
 
-		$args = json_decode(wp_unslash($_POST['data']));
-		$settings = $args->settings;
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+		if (!$args || !isset($args->settings) || !is_object($args->settings))
+			Mappress::ajax_response('Missing settings');
+
 		$options = Mappress_Options::get();
-		foreach($settings as $setting => $value)
+		foreach($args->settings as $setting => $value)
 			$options->$setting = $value;
 		$options->save();
 		Mappress::ajax_response('OK');
-	}
+	}    
 
 	// Save all the options
 	static function ajax_options_save() {
@@ -275,21 +280,26 @@ class Mappress_Settings {
 
 		ob_start();
 
-		// Receive arrays, not objects
-		$args = json_decode(wp_unslash($_POST['data']), true);
+		// Receive arrays, not objects     
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data']), true) : null;
+		if (!$args) 
+			Mappress::ajax_response('Internal error, missing data!');
+		
 		$settings = (object) $args['settings'];
-
 		if (!$settings)
 			Mappress::ajax_response('Internal error, missing settings!');
 
 		// Convert JS object arrays to PHP associative arrays
-		self::assoc($settings->autoicons['values'], true);
-		self::assoc($settings->metaKeys['post'], true);
-		self::assoc($settings->metaKeys['user'], true);
+		if (isset($settings->autoicons['values']))
+			self::assoc($settings->autoicons['values'], true);
+		if (isset($settings->metaKeys['post']))
+			self::assoc($settings->metaKeys['post'], true);
+		if (isset($settings->metaKeys['user']))
+			self::assoc($settings->metaKeys['user'], true);
 
 		// If license changed, clear cache so it re-checks on next load
-		if ($settings->license && $settings->license != Mappress::$options->license)
-			Mappress::$updater->clear_cache();
+		if (isset($settings->license) && $settings->license && $settings->license != Mappress::$options->license)
+			Mappress::$updater->clear_cache();        
 
 		// Update() converts strings to booleans, but it's not recursive, so explicitly convert nested booleans inside arrays
 		if (isset($settings->clusteringOptions['spiderfyOnMaxZoom']))
@@ -318,7 +328,8 @@ class Mappress_Settings {
 		$options->update($settings);
 				
 		// Default icon may be null, in which case update will have skipped it
-		$options->defaultIcon = $settings->defaultIcon;
+		if (isset($settings->defaultIcon))
+			$options->defaultIcon = $settings->defaultIcon;        
 		
 		$options->save();
 		Mappress::ajax_response('OK');
@@ -334,11 +345,15 @@ class Mappress_Settings {
 		if (!$user_id)
 			Mappress::ajax_response('No user ID');
 
-		$data = json_decode(wp_unslash($_POST['data']));
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+		if (!$args || !isset($args->preferences))
+			Mappress::ajax_response('Missing data');
+
 		$user_prefs = get_user_meta($user_id, 'mappress_preferences', true);
 		$user_prefs = ($user_prefs) ? $user_prefs : (object) array();
-		foreach($data->preferences as $pref => $value)
+		foreach($args->preferences as $pref => $value)
 			$user_prefs->$pref = $value;
+						
 		update_user_meta($user_id, 'mappress_preferences', $user_prefs);
 		Mappress::ajax_response('OK');
 	}
@@ -579,8 +594,6 @@ class Mappress_Settings {
 			return 'Jetpack infinite scroll';
 		if (Mappress::is_plugin_active('amp'))
 			return 'Google AMP';
-		if (isset($_REQUEST['mp_iframes']))
-			return 'Debugging';
 	}
 
 	static function options_page() {
@@ -620,7 +633,7 @@ class Mappress_Settings {
 		$initial_state = array(
 			'apiKey' => $options->apiKey,
 			'engine' => $options->engine,
-			'isOpen' => (isset($_REQUEST['wizard']) && $_REQUEST['wizard']) ? true : false,
+			'isOpen' => (current_user_can('manage_options') && !empty($_REQUEST['wizard'])) ? true : false,
 			'mapbox' => $options->mapbox,
 		);
 		?>

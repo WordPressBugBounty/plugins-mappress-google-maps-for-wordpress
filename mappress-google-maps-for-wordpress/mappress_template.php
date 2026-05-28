@@ -55,40 +55,49 @@ class Mappress_Template extends Mappress_Obj {
 
 	static function ajax_delete() {
 		check_ajax_referer('mappress', 'nonce');
-
-		if (!current_user_can('manage_options'))
-			Mappress::ajax_response('Not authorized');
+		if (!current_user_can('manage_options')) Mappress::ajax_response('Not authorized');
 
 		$args = json_decode(wp_unslash($_POST['data']));
-		$name = isset($args->name) ? sanitize_text_field($args->name) : '';
+		$name = isset($args->name) ? $args->name : '';
+		$filepath = self::get_ajax_filepath($name);
+
+		$result = @unlink($filepath);
+		if ($result === false) Mappress::ajax_response('Unable to delete');
+		Mappress::ajax_response('OK');
+	}    
+	
+	static function get_ajax_filepath($name) {  
+		$name = sanitize_text_field((string) $name);
 		
 		if ($name === '') 
 			Mappress::ajax_response('Missing template name');
 		
-		$filepath = get_stylesheet_directory() . '/' . $name . '.php';
-		
-		$result = @unlink($filepath);
-			if ($result === false)
-				Mappress::ajax_response('Unable to delete');
+		if ($name !== basename($name))
+			Mappress::ajax_response('Invalid template name');
 
-		Mappress::ajax_response('OK');
-	}
+		$stylesheet_dir = realpath(get_stylesheet_directory());
+		$filepath = $stylesheet_dir . '/' . $name . '.php';
+		$resolved = realpath($filepath);
+
+		// If the file already exists, confirm it's still inside the stylesheet dir
+		if ($resolved !== false && strpos($resolved, $stylesheet_dir) !== 0)
+			Mappress::ajax_response('Path traversal blocked');
+
+		return $filepath;   
+	}    
 
 	static function ajax_get() {
 		check_ajax_referer('mappress', 'nonce');
 
 		if (!current_user_can('manage_options'))
-			Mappress::ajax_response('Not authorized');
-									
-		// Get user template                         							   
-		$name = isset($_GET['name']) ? sanitize_text_field(wp_unslash($_GET['name'])) : '';
-		if ($name === '') 
-			Mappress::ajax_response('Missing template name');
+			Mappress::ajax_response('Not authorized');  
 
-		$filename = $name . '.php';
-		$filepath = get_stylesheet_directory() . '/' . $filename;
+		$name = isset($_GET['name']) ? wp_unslash($_GET['name']) : '';
+		$filepath = self::get_ajax_filepath($name);
+		$name = sanitize_text_field($name);          // for use below
+		$filename = $name . '.php';            
 		
-		$html = (is_string($filepath) && $filepath !== '' && file_exists($filepath)) ? @file_get_contents($filepath) : null;
+		$html = (file_exists($filepath)) ? file_get_contents($filepath) : null;
 		
 		// Get standard template
 		$basedir = realpath(Mappress::$basedir);
@@ -97,7 +106,7 @@ class Mappress_Template extends Mappress_Obj {
 		if (!$basedir || !$standard_file || strpos($standard_file, $basedir) !== 0) 
 			Mappress::ajax_response('Invalid standard template path');
 
-		$standard_html = @file_get_contents($standard_file);
+		$standard_html = file_get_contents($standard_file);
 		if (!$standard_html) 
 			Mappress::ajax_response('Invalid standard template');
 			
@@ -126,14 +135,10 @@ class Mappress_Template extends Mappress_Obj {
 			Mappress::ajax_response('Not authorized: DISALLOW_UNFILTERED_HTML is set in wp-config.php');
 
 		$args = json_decode(wp_unslash($_POST['data']));        
-		$name = isset($args->name) ? sanitize_text_field($args->name) : '';
+		$name = isset($args->name) ? $args->name : '';
 		$content = isset($args->content) ? $args->content : '';
 
-		if ($name === '') 
-			Mappress::ajax_response('Missing template name');
-			
-		$filename = $name . '.php';
-		$filepath = get_stylesheet_directory() . '/' . $filename;		
+		$filepath = self::get_ajax_filepath($name);
 					
 		$result = @file_put_contents($filepath, $content);
 		if ($result === false)
@@ -155,7 +160,7 @@ class Mappress_Template extends Mappress_Obj {
 		// If user template exists, check it's not empty (or all whitespace)
 		$html = null;
 		if ($template_file && file_exists($template_file)) {
-			$html = @file_get_contents($template_file);
+			$html = file_get_contents($template_file);
 			if ($html !== false) {
 				$html =  trim(str_replace(array("\r\n", "\t"), array(), $html));
 				$html = ($html === '') ? null : $html;
@@ -193,7 +198,7 @@ class Mappress_Template extends Mappress_Obj {
 			$props[$token] = get_metadata($otype, $oid, $token, true);
 		return apply_filters('mappress_poi_props', $props, $oid, $poi, $otype);
 	}
-
+				   
 	static function get_custom_tokens($otype) {
 		$tokens = array();
 		$templates = ($otype == 'user') ? array('user-mashup-popup', 'user-mashup-item') : array('map-popup', 'map-item', 'mashup-item', 'mashup-popup');
@@ -236,7 +241,8 @@ class Mappress_Template extends Mappress_Obj {
 		$template = self::get_template($template_name);
 		if ($template) {
 			$template = str_replace('</script', '<\/script', $template); // Remove any script tags in the template itself
-			echo "<script type='text/html' class='mapp-tmpl' id='mapp-tmpl-$template_name'>$template</script>";
+			$template_id = esc_attr("mapp-tmpl-$template_name");
+			echo "<script type='text/html' class='mapp-tmpl' id='$template_id'>$template</script>";            
 		}
 	}
 

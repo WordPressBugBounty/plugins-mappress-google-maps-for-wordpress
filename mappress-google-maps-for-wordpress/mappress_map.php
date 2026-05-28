@@ -114,7 +114,8 @@ class Mappress_Map extends Mappress_Obj {
 
 		add_action('deleted_post', array(__CLASS__, 'deleted_post'));
 		add_action('trashed_post', array(__CLASS__, 'trashed_post'));
-		add_action('media_buttons', array(__CLASS__, 'media_buttons'));
+		if (current_user_can(Mappress::cap()))
+			add_action('media_buttons', array(__CLASS__, 'media_buttons'));
 
 		add_action('show_user_profile', array(__CLASS__, 'display_user_map'));
 		add_action('edit_user_profile', array(__CLASS__, 'display_user_map'));
@@ -160,9 +161,8 @@ class Mappress_Map extends Mappress_Obj {
 	static function ajax_get_post() {
 		global $post;
 
-		check_ajax_referer('mappress', 'nonce');
 		ob_start();
-		$oid = (isset($_GET['oid'])) ? $_GET['oid']  : null;
+		$oid = isset($_GET['oid']) ? absint($_GET['oid']) : 0;        
 		
 		$post = get_post( $oid );
 
@@ -486,9 +486,15 @@ class Mappress_Map extends Mappress_Obj {
 	}
 
 	static function media_buttons($editor_id) {
-		$button = sprintf("<button type='button' class='button wp-media-buttons-icon mapp-classic-button'><span class='dashicons dashicons-location'></span>%s</button>", __('MapPress', 'mappress-google-maps-for-wordpress'));
-		echo "<div class='mapp-classic'>$button</div>";
-	}
+		?>
+		<div class='mapp-classic'>
+			<button type='button' class='button mapp-classic-button'>
+				<span class='dashicons dashicons-location'></span>
+				<?php echo esc_html(__('MapPress', 'mappress-google-maps-for-wordpress')); ?>
+			</button>
+		</div>
+		<?php
+	}    
 
 	static function mutate($mapid, $mapdata) {
 		if (!$mapid || !$mapdata)
@@ -571,7 +577,7 @@ class Mappress_Map extends Mappress_Obj {
 		if (!$this->mapid) {
 			$sql = "INSERT INTO $maps_table (otype, oid, status, title, obj) VALUES(%s, %d, %s, %s, %s)";
 			$result = $wpdb->query($wpdb->prepare($sql, $this->otype, $this->oid, $this->status, $this->title, $obj));
-			$this->mapid = $wpdb->get_var("SELECT LAST_INSERT_ID()");
+			$this->mapid = $wpdb->insert_id;            
 		} else {
 			$sql = "INSERT INTO $maps_table (mapid, otype, oid, status, title, obj) VALUES(%d, %s, %d, %s, %s, %s) "
 				. " ON DUPLICATE KEY UPDATE mapid=%d, otype=%s, oid=%d, status=%s, title=%s, obj=%s ";
