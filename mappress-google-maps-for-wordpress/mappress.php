@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.97.1
+Version: 2.97.2
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.97.1';
+	const VERSION = '2.97.2';
 
 	static
 		$api,
@@ -557,7 +557,7 @@ class Mappress {
 			self::$options->geocoder = (self::$options->engine == 'leaflet') ? 'nominatim' : 'google';
 			self::$options->save();
 		}
-
+		
 		// Check for license expired
 		if (self::$pro && self::$options->license) {
 			$last_check = get_option('mappress_license_check');
@@ -668,7 +668,15 @@ class Mappress {
 					self::$options->geocoder = (self::$options->engine == 'google') ? 'google' : 'nominatim';
 
 				self::$options->save();
-			}				
+			}		
+			
+			// 2.97.2: fix Google engine users stuck with nominatim geocoder
+			if (version_compare($current_version, '2.97.2', '<')) {
+				if (self::$options->engine == 'google' && self::$options->geocoder != 'google')
+					self::$options->geocoder = 'google';
+
+				self::$options->save();
+			}            		
 		}
 
 		update_option('mappress_version', self::VERSION);

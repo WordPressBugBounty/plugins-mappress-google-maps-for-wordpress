@@ -28,7 +28,7 @@ class Mappress_Options extends Mappress_Obj {
 		$filtersOpen = false,
 		$filtersPos = 'top',
 		$footer = true,
-		$geocoder = 'nominatim',
+		$geocoder = null,
 		$geolocate = false,
 		$highlight,
 		$highlightIcon,
