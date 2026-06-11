@@ -56,7 +56,7 @@ class Mappress_Map extends Mappress_Obj {
 		$name = (isset($vars['name']) ? $vars['name'] : 'noname');
 		
 		// Extra div forces web component out of phrasing elements like <p>
-		return "<div></div>\r\n<mappress-map id={$name} {$atts}>\r\n$pois\r\n</mappress-map>\r\n";
+		return "<div></div>\r\n<mappress-map id=\"" . esc_attr($name) . "\" {$atts}>\r\n$pois\r\n</mappress-map>\r\n";        
 	}
 
 	function to_json() {
