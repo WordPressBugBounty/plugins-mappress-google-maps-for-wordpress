@@ -149,6 +149,7 @@ __("Add to map");
 __("Search");
 __("List");
 __("Map");
+__("This basemap needs WebGL, which is disabled in this browser. Enable hardware acceleration (e.g. Chrome: Settings → System → \"Use hardware acceleration when available\"), then reload.");
 __("Center map");
 __("Traffic");
 __("Bicycling");

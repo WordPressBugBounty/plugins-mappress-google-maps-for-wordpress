@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.97.4
+Version: 2.97.6
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.97.4';
+	const VERSION = '2.97.6';
 
 	static
 		$api,
@@ -100,8 +100,7 @@ class Mappress {
 			add_shortcode('mashup', array(__CLASS__, 'shortcode_mashup'));
 
 		// Adjust google script tag
-		if (self::$options->engine == 'google')
-			add_filter('script_loader_tag', array(__CLASS__, 'script_loader_tag'), PHP_INT_MAX, 3);
+		add_filter('script_loader_tag', array(__CLASS__, 'script_loader_tag'), PHP_INT_MAX, 3);
 
 		// Slow heartbeat
 		if (self::$debug)
@@ -877,8 +876,15 @@ class Mappress {
 		// Deregister
 		if (self::$options->engine == 'google' && self::$options->deregister && self::$loaded && (stripos($src, 'maps.googleapis.com') !== false || stripos($src, 'maps.google.com')))
 			return '';
-		else
-			return $tag;
+
+		// Shield scripts from JS optimizers (SiteGround Speed Optimizer, WP Rocket, Autoptimize, LiteSpeed, Cloudflare Rocket Loader, etc.).  
+		// Re-minifying maplibre-gl bundle corrupts its style parser, producing a silent blank map and the "Cannot read properties of undefined (reading 'kind')" console error.
+		if (strpos($handle, 'mappress') === 0) {
+			$skip = ' data-no-optimize="1" data-no-minify="1" data-no-defer="1" data-cfasync="false" data-wpr-no-optimize="1" ';
+			$tag = preg_replace('/<script\s/', '<script' . $skip, $tag, 1);
+		}
+
+		return $tag;
 	}
 
 	static function scripts_enqueue($type = 'frontend', $scripts = null) {
