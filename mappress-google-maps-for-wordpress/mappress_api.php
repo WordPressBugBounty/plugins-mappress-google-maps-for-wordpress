@@ -95,6 +95,7 @@ class Mappress_Api extends WP_REST_Controller {
 		return $this->rest_response($this->counts($otype, $oid));
 	}
 
+	// Note that this is used only for internal reads in the editor
 	public function get_map($request) {
 		ob_start();
 		$mapid = $request->get_param('mapid');
@@ -103,18 +104,23 @@ class Mappress_Api extends WP_REST_Controller {
 		if (!$map)
 			return new WP_Error('get_map', 'Map not found', array('status' => 404));
 
-			// Anonymous read follows parent post visibility. Editors see everything.		
-		if (!current_user_can(Mappress::cap())) {
-			if ($map->status === 'trashed')
-				return new WP_Error('get_map', 'Map not found', array('status' => 404));
-			if ($map->otype === 'post' && (int) $map->oid > 0) {
-				$post_status = get_post_status((int) $map->oid);
-				if ($post_status !== 'publish' && $post_status !== 'inherit')
-					return new WP_Error('get_map', 'Map not found', array('status' => 404));
-			}
-		}			
 		return $this->rest_response($map);
 	}
+	
+	public function get_map_display($request) {
+		ob_start();
+		$mapid = $request->get_param('mapid');
+		$map   = ($mapid) ? Mappress_Map::get($mapid) : null;
+
+		// Must exist and not be trashed
+		if (!$map || $map->status === 'trashed')
+			return new WP_Error('get_map', 'Map not found', array('status' => 404));
+
+		// Strip edit-only data
+		$data = $map->to_json();
+		unset($data['metaKey'], $data['status']);
+		return $this->rest_response($data);        
+	}    
 
 	public function get_map_schema() {
 		$schema = array(
@@ -130,7 +136,7 @@ class Mappress_Api extends WP_REST_Controller {
 				),
 				'center' => array(
 					'description' => esc_html("Map center.  May be null for automatic center, or a string of lat,lng to force the center."),
-					'type' => 'integer',
+					'type' => 'string',
 				),
 				'mapTypeId' => array(
 					'description' => esc_html('Map type.  May be null, a default type (roadmap, satellite or hybrid) or the name of a custom style.'),
@@ -316,16 +322,15 @@ class Mappress_Api extends WP_REST_Controller {
 					'permission_callback' => function() { return current_user_can(Mappress::cap()); },                    
 					'args' => array(
 						'filter' => array('sanitize_callback' => 'sanitize_title', 'default' => 'all'),
-						'oid' => array('sanitize_callback' => 'sanitize_title', 'default' => null),
+						'oid' => array('sanitize_callback' => 'absint', 'default' => null),   
 						'otype' => array('sanitize_callback' => 'sanitize_title', 'default' => 'post'),
 						'page' => array('sanitize_callback' => 'absint', 'default' => 1),
 						'page_size' => array('sanitize_callback' => 'absint', 'default' => 10),
-						'search' => array('sanitize_callback' => 'sanitize_title', 'default' => ''),
+						'search_text' => array('sanitize_callback' => 'sanitize_text_field', 'default' => ''),                        
 						'sort_by' => array('sanitize_callback' => 'sanitize_title', 'default' => 'mapid'),
 						'sort_asc' => array('sanitize_callback' => 'rest_sanitize_boolean', 'default' => true),
 					),
-
-				),
+				),    
 				array(
 					'methods' => 'POST',
 					'callback' => array($this, 'create_map'),
@@ -335,16 +340,16 @@ class Mappress_Api extends WP_REST_Controller {
 			)
 		);
 
-		// Individual map ops - note for future bulk use  '/maps/op/(?P<mapid>\d+(,\d+)*)',
+		// Map editing
 		register_rest_route(
 			$this->namespace,
 			'/maps/(?P<mapid>\d+)',
-			array(
+			array(         
 				array(
 					'methods' => 'GET',
 					'callback' => array($this, 'get_map'),
-					'permission_callback' => '__return_true',   
-				),                
+					'permission_callback' => function() { return current_user_can(Mappress::cap()); },
+				),       
 				
 				array(
 					'methods' => 'DELETE',
@@ -366,6 +371,17 @@ class Mappress_Api extends WP_REST_Controller {
 				'schema' => array($this, 'get_map_schema'),
 			)
 		);
+		
+		// Map display - for future use
+		register_rest_route(
+			$this->namespace,
+			'/maps/(?P<mapid>\d+)/display',
+			array(
+				'methods' => 'GET',
+				'callback' => array($this, 'get_map_display'),
+				'permission_callback' => '__return_true',
+			)
+		);        
 
 		// Clone 
 		register_rest_route(
@@ -375,6 +391,9 @@ class Mappress_Api extends WP_REST_Controller {
 				'methods' => 'POST',
 				'callback' => array($this, 'duplicate_map'),
 				'permission_callback' => function() { return current_user_can(Mappress::cap()); },                    
+				'args' => array(
+					'oid' => array('sanitize_callback' => 'absint', 'default' => 0),
+				),                
 				'schema' => array($this, 'get_map_schema'),
 			)
 		);

@@ -207,7 +207,7 @@ class Mappress_Settings {
 		$status = Mappress::$updater->check($args->license);
 		Mappress::ajax_response('OK', $status);
 	}
-
+	
 	static function ajax_style_delete() {
 		check_ajax_referer('mappress', 'nonce');
 		if (!current_user_can('manage_options'))
@@ -233,10 +233,12 @@ class Mappress_Settings {
 		if (!current_user_can('manage_options'))
 			Mappress::ajax_response('Not authorized');
 
-		$args = json_decode(wp_unslash($_POST['data']));
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+		if (!$args || !isset($args->style))
+			Mappress::ajax_response('Missing style');
 		$style = $args->style;
-		if (!$style || !is_object($style))
-			Mappress::ajax_response('Missing style');    
+		if (!is_object($style))
+			Mappress::ajax_response('Missing style');            
 			
 		$options = Mappress_Options::get();
 		$setting = ($options->engine == 'google') ? 'stylesGoogle' : 'stylesMapbox';
@@ -562,26 +564,27 @@ class Mappress_Settings {
 		return $usage;
 	}
 
-	static function review_admin_notice() {
-		$first_time = get_option('mappress_review');
+	static function review_admin_notice() {		
+		$next = get_option('mappress_review');
 
-		if (!$first_time) {
-			update_option('mappress_review', time());
+		// First run: schedule the initial prompt 14 days out
+		if (!$next) {
+			update_option('mappress_review', time() + (60 * 60 * 24 * 14));
 			return;
 		}
 
-		if (time() <= $first_time + (60 * 60 * 24 * 10))
+		// Not yet time (covers both the initial delay and any snooze)
+		if (time() <= $next)
 			return;
 
-		$ids = Mappress_Map::get_list('post', null, 'ids');
-		if (count($ids) < 1)
+		if (count(Mappress_Map::get_list('post', null, 'ids')) < 1)
 			return;
-
-		$review_link = sprintf("<a class='button button-primary mapp-dismiss' href='https://wordpress.org/support/view/plugin-reviews/mappress-google-maps-for-wordpress?filter=5' target='_blank'>%s</a>", __('OK, you deserve it!', 'mappress-google-maps-for-wordpress'));
-		$no_link = sprintf("<a class='button mapp-dismiss' href='#'>%s</a>", __('Nope, maybe later', 'mappress-google-maps-for-wordpress'));
+														   
+		$review_link = sprintf("<a class='button button-primary mapp-dismiss' href='https://wordpress.org/support/plugin/mappress-google-maps-for-wordpress/reviews/?rate=5#new-post' target='_blank'>%s</a>", __("Sure, I'll leave a review", 'mappress-google-maps-for-wordpress'));
+		$no_link = sprintf("<a class='button mapp-snooze' href='#'>%s</a>", __('Nope, maybe later', 'mappress-google-maps-for-wordpress'));
 		$help_link = sprintf("<a class='mapp-dismiss' href='https://mappresspro.com/contact' target='_blank'>%s</a>", __('I need help using the plugin', 'mappress-google-maps-for-wordpress'));
 		$body = "<div class='mapp-review'>";
-		$body .= "<h3>" . __("Help Spread the Word", 'mappress-google-maps-for-wordpress') . "</h3>";
+		$body .= "<h3>" . __("A quick favor?", 'mappress-google-maps-for-wordpress') . "</h3>";
 		$body .= "<p>" . __("Hi, I hope you're enjoying MapPress.  Would you mind taking a moment to write a brief review?  It would mean a lot to me!", 'mappress-google-maps-for-wordpress') . "</p>";
 		$body .= "<p>" . "~ Chris Richardson" . "</p>";
 		$body .= "<div class='mapp-review-options'>" . $review_link . $no_link . $help_link . "</div>";

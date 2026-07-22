@@ -57,8 +57,8 @@ class Mappress_Template extends Mappress_Obj {
 		check_ajax_referer('mappress', 'nonce');
 		if (!current_user_can('manage_options')) Mappress::ajax_response('Not authorized');
 
-		$args = json_decode(wp_unslash($_POST['data']));
-		$name = isset($args->name) ? $args->name : '';
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+		$name = ($args && isset($args->name)) ? $args->name : '';        
 		$filepath = self::get_ajax_filepath($name);
 
 		$result = @unlink($filepath);
@@ -134,9 +134,9 @@ class Mappress_Template extends Mappress_Obj {
 		if (!current_user_can('unfiltered_html'))
 			Mappress::ajax_response('Not authorized: DISALLOW_UNFILTERED_HTML is set in wp-config.php');
 
-		$args = json_decode(wp_unslash($_POST['data']));        
-		$name = isset($args->name) ? $args->name : '';
-		$content = isset($args->content) ? $args->content : '';
+		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
+		$name    = ($args && isset($args->name))    ? $args->name    : '';
+		$content = ($args && isset($args->content)) ? $args->content : '';            
 
 		$filepath = self::get_ajax_filepath($name);
 					

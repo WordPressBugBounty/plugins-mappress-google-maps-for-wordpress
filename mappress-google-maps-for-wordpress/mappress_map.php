@@ -126,7 +126,7 @@ class Mappress_Map extends Mappress_Obj {
 		foreach($post_types as $post_type) {
 			add_filter("manage_{$post_type}_posts_columns", array(__CLASS__, 'manage_posts_columns'));
 			add_action("manage_{$post_type}_posts_custom_column", array(__CLASS__, 'manage_posts_custom_column'), 10, 2);
-		}        
+		}          
 	}
 
 	static function manage_posts_columns($defaults) {
@@ -168,20 +168,22 @@ class Mappress_Map extends Mappress_Obj {
 
 		if (!$post)
 			die(sprintf(__('Post not found', 'mappress-google-maps-for-wordpress'), $oid));
-
-		// Check auths for logged in users and readers			
+			
+		// Check auths for logged in users and readers
 		$available = false;
 		$userid = get_current_user_id();
 		if ($userid) {
-			if (current_user_can('read_post', $oid)) 
+			if (current_user_can('read_post', $oid))
 				$available = true;
 		} else {
-			if ($post->post_status != 'private' && $post->post_status != 'draft' && !post_password_required($post))
+			// Anonymous: only publicly-viewable posts, and never password-protected ones
+			$status_obj = get_post_status_object(get_post_status($post));
+			if ($status_obj && $status_obj->public && !post_password_required($post))
 				$available = true;
 		}
 		if (!$available)
-			die(__('Post not available', 'mappress-google-maps-for-wordpress'));
-			
+			die(__('Post not available', 'mappress-google-maps-for-wordpress'));            
+
 		setup_postdata($post);
 		$html = Mappress_Template::get_template('mashup-modal');
 		die($html);
