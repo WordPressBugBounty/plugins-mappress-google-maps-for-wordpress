@@ -5,7 +5,7 @@ Tags: maps, google maps, leaflet, openstreetmap, mapbox
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.97.7
+Stable tag: 2.97.8
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,13 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 4. Creating a mashup
 
 == Changelog ==
+
+= 2.97.8 =
+* Added: improve terms fetching for mashup block, applies to sites with large numbers of taxonomies and hosts limiting connections
+* Added: map-level POI list toggle
+* Changed: update icon sizing to work with newer Leaflet stylesheet
+* Fixed: mashup block lines/search buttons weren't responding
+
 
 = 2.97.7 =
 * Added: dark theme for OFM maps

@@ -71,8 +71,10 @@ class Mappress_Map extends Mappress_Obj {
 			'center' => $this->center,
 			'filter' => $this->filter,
 			'height' => $this->height,
+			'lines' => $this->lines,
 			'mapTypeId' => $this->mapTypeId,
 			'metaKey' => $this->metaKey,
+			'poiList' => $this->poiList,
 			'pois' => $json_pois,
 			'search' => $this->search,
 			'status' => $this->status,
@@ -327,7 +329,7 @@ class Mappress_Map extends Mappress_Obj {
 			$layout_atts = Mappress::to_atts($atts);
 			
 			// Iframes don't size like divs, so require a wrapper div			
-			$wrapper_class = 'mapp-layout mapp-has-iframe' . $alignment_class; 
+			$wrapper_class = trim('mapp-layout mapp-has-iframe' . $alignment_class . ' ' . $this->class);            
 			return "<div id='{$this->name}' class='$wrapper_class' style='$style'>"
 				. "<iframe class='mapp-iframe ' src='$url' scrolling='no' loading='lazy'></iframe>"
 				. "</div>";
@@ -340,7 +342,7 @@ class Mappress_Map extends Mappress_Obj {
 				$this->class = 'mapp-layout';
 				$this->style = 'height: 100%';
 			} else {
-				$this->class = 'mapp-layout ' . $alignment_class;
+				$this->class = trim('mapp-layout ' . $alignment_class . ' ' . $this->class);                
 				$this->style = $style;
 			}
 			
