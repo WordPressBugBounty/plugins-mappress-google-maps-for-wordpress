@@ -127,7 +127,6 @@ class Mappress_Settings {
 		add_action('wp_ajax_mapp_preferences_save', array(__CLASS__, 'ajax_preferences_save'));
 		add_action('wp_ajax_mapp_style_delete', array(__CLASS__, 'ajax_style_delete'));
 		add_action('wp_ajax_mapp_style_save', array(__CLASS__, 'ajax_style_save'));
-		add_action('load-toplevel_page_mappress', array(__CLASS__, 'review_admin_notice'));
 	}
 
 	static function ajax_geocode() {
@@ -464,7 +463,9 @@ class Mappress_Settings {
 		// Php 8.2 doesn't like dynamic properties, so no $state->helpers = ...
 		$state = (array) $state;
 		$state['helpers'] = $helpers;
-		return json_encode($state);
+
+		// JSON_HEX_TAG: this is echoed into an inline <script>, so '<' and '>' must be escaped - otherwise a '</script>' in a value (e.g. a license error message) ends the block         
+		return json_encode($state, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);        
 	}
 
 	static function get_meta_fields() {
@@ -564,10 +565,10 @@ class Mappress_Settings {
 		return $usage;
 	}
 
-	static function review_admin_notice() {		
+	static function review_admin_notice() {
 		$next = get_option('mappress_review');
 
-		// First run: schedule the initial prompt 14 days out
+		// First run: schedule the initial prompt 14 days out (screen-independent)
 		if (!$next) {
 			update_option('mappress_review', time() + (60 * 60 * 24 * 14));
 			return;
@@ -577,9 +578,18 @@ class Mappress_Settings {
 		if (time() <= $next)
 			return;
 
-		if (count(Mappress_Map::get_list('post', null, 'ids')) < 1)
+		// Only on screens users actually visit.
+		// 'post' is excluded: the block editor suppresses admin_notices.
+		$screen = get_current_screen();
+		if (!$screen)
 			return;
-														   
+		if (!in_array($screen->base, array('dashboard', 'edit', 'plugins'), true)
+			&& strpos($screen->id, 'mappress') === false)
+			return;
+
+		if (count(Mappress_Map::get_list('post', null, 'ids')) < 2)
+			return;
+
 		$review_link = sprintf("<a class='button button-primary mapp-dismiss' href='https://wordpress.org/support/plugin/mappress-google-maps-for-wordpress/reviews/?rate=5#new-post' target='_blank'>%s</a>", __("Sure, I'll leave a review", 'mappress-google-maps-for-wordpress'));
 		$no_link = sprintf("<a class='button mapp-snooze' href='#'>%s</a>", __('Nope, maybe later', 'mappress-google-maps-for-wordpress'));
 		$help_link = sprintf("<a class='mapp-dismiss' href='https://mappresspro.com/contact' target='_blank'>%s</a>", __('I need help using the plugin', 'mappress-google-maps-for-wordpress'));

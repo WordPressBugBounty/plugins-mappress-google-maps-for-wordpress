@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.97.8
+Version: 2.97.9
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.97.8';
+	const VERSION = '2.97.9';
 
 	static
 		$api,
@@ -73,8 +73,8 @@ class Mappress {
 		self::debugging();
 
 		if (self::$pro)
-			self::$updater = new Mappress_Updater(self::$basename, 'mappress', self::VERSION, self::$options->license, self::$options->betas);
-
+			self::$updater = new Mappress_Updater(self::$basename, 'mappress', self::$options->license, self::$options->betas);        
+			
 		add_action('admin_menu', array(__CLASS__, 'admin_menu'));
 		add_action('init', array(__CLASS__, 'init'), 0);	// Priority 0 required for widgets_init hook
 		add_action('plugins_loaded', array(__CLASS__, 'plugins_loaded'));
@@ -126,6 +126,7 @@ class Mappress {
 		// Welcome
 		add_action('activate_' . self::$basename, array(__CLASS__, 'activate'), 10, 2);
 		add_action('admin_init', array(__CLASS__, 'admin_init'), 10, 2);
+		add_action('current_screen', array('Mappress_Settings', 'review_admin_notice'));
 
 		// Iframes
 		if (isset($_GET['mappress']))
@@ -146,6 +147,10 @@ class Mappress {
 			set_transient('_mappress_activation_redirect', 'wizard', 30);
 		else
 			set_transient('_mappress_activation_redirect', true, 30);
+
+		// NEW: start the review clock at activation, not at first admin-page visit
+		if (!get_option('mappress_review'))
+			update_option('mappress_review', time() + (60 * 60 * 24 * 14));
 	}
 
 	static function admin_init() {
@@ -199,8 +204,6 @@ class Mappress {
 		self::$pages['settings'] = add_submenu_page($parent, __('Settings', 'mappress-google-maps-for-wordpress'), __('Settings', 'mappress-google-maps-for-wordpress'), 'manage_options', 'mappress', array('Mappress_Settings', 'options_page'));
 		self::$pages['maps'] = add_submenu_page($parent, __('Maps', 'mappress-google-maps-for-wordpress'), __('Maps', 'mappress-google-maps-for-wordpress'), Mappress::cap(), 'mappress_maps', array(__CLASS__, 'map_library'));
 
-		add_action('load-' . self::$pages['maps'], array('Mappress_Settings', 'review_admin_notice'));        
-		
 		if (self::$pro)
 			self::$pages['import'] = add_submenu_page($parent, __('Import', 'mappress-google-maps-for-wordpress'), __('Import', 'mappress-google-maps-for-wordpress'), 'manage_options', 'mappress_import', array('Mappress_Import', 'import_page'));
 		self::$pages['support'] = add_submenu_page($parent, __('Support', 'mappress-google-maps-for-wordpress'), __('Support', 'mappress-google-maps-for-wordpress'), 'manage_options', 'mappress_support', array('Mappress_Settings', 'support_page'));
@@ -234,7 +237,7 @@ class Mappress {
 		}
 
 		// Dismissibles
-		if (is_super_admin()) {
+		if (current_user_can('manage_options')) {
 			$content =  "<div class='notice notice-%s is-dismissible' data-mapp-dismiss='%s'><p>%s</p></div>";
 			$dismissed = array_filter( explode( ',', (string) get_user_meta( get_current_user_id(), 'mappress_dismissed', true ) ) );
 			$notices = (self::$notices) ? array_diff_key(self::$notices, array_flip($dismissed)) : array();
@@ -412,6 +415,7 @@ class Mappress {
 		<!doctype html>
 		<html class='mapp-iframe-html' <?php language_attributes(); ?>>
 		<head>
+			<base target='_top'>
 			<title>MapPress</title>
 			<?php Mappress::wp_head(); ?>
 			<?php $styles->do_items(array('mappress', 'mappress-custom')); ?>

@@ -5,22 +5,22 @@ Tags: maps, google maps, leaflet, openstreetmap, mapbox
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.97.8
+Stable tag: 2.97.9
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add unlimited Google Maps, Leaflet & OpenStreetMap to WordPress. Create a map, map block or store locator — no API key needed for free maps.
+Unlimited maps and markers. Free, no API key, no setup. Google Maps, Leaflet, OpenStreetMap & Mapbox. Map editor, blocks and store locators.
 
 == Description ==
-MapPress is the easiest way to add unlimited, beautiful interactive maps to WordPress, with Gutenberg map blocks and classic editor support.
+MapPress is the easiest way to add beautiful interactive maps to WordPress, with Gutenberg map blocks and classic editor support.
 
-Pick the map service that fits you: **Google Maps**, or free keyless **Leaflet** maps powered by **OpenStreetMap** and **OpenFreeMap** — no API key required. **Mapbox** is also supported.
+Create unlimited maps and markers in the free version, with no upgrade required. MapPress works the moment you activate it: no API key, no billing account, no configuration.
 
-Create **unlimited maps and markers**.  The popup map editor makes creating and editing maps easy!
+Pick the map service that fits you: Google Maps, or free keyless Leaflet maps using OpenFreeMap (OpenStreetMap data) — no API key required. Mapbox is also supported.
 
 Perfect for contact pages, store and office locations, real estate listings, travel routes, delivery areas and directories.
 
-Upgrade to [MapPress Pro](https://mappresspro.com/mappress) for even more features, including custom icons (with a built-in icon editor!), search and filter, clustering, and much more.  See it in action on the [MapPress Home Page](https://mappresspro.com/mappress) or test it yourself with a [Free Demo Site](https://mappresspro.com/demo)!
+Upgrade to [MapPress Pro](https://mappresspro.com/mappress) for even more features, including custom icons (with a built-in icon editor!), search and filter, mashups, and much more.  See it in action on the [MapPress Home Page](https://mappresspro.com/mappress) or test it yourself with a [Free Demo Site](https://mappresspro.com/demo)!
 
 [Home Page](https://mappresspro.com/mappress)
 [What's New](https://mappresspro.com/whats-new)
@@ -29,9 +29,9 @@ Upgrade to [MapPress Pro](https://mappresspro.com/mappress) for even more featur
 [Support](https://mappresspro.com/forums)
 
 = Key Features =
-* Unlimited maps and markers
-* Google Maps, Leaflet, OpenStreetMap, OpenFreeMap and Mapbox maps
-* Free OpenStreetMap and OpenFreeMap maps — no API key needed
+* Unlimited maps and markers in free version
+* No API key, no setup and no fees
+* Google Maps, Leaflet, Mapbox, and free OpenFreeMap maps (using OpenStreetMap data)
 * Gutenberg editor map blocks
 * Classic editor support
 * Styled maps
@@ -75,20 +75,20 @@ Updating is automatic.  Your maps are stored in the database, so they are preser
 
 == Frequently Asked Questions ==
 
-= Do I need a Google Maps API key? =
-No.  MapPress includes free Leaflet maps using OpenStreetMap and OpenFreeMap, which need no API key.  A key is only required if you choose the Google Maps or Mapbox engines.  You can switch engines at any time without losing your maps.
+= Is the free version limited? =
+No. The free version allows unlimited maps and markers — no cap, and no upgrade required. Pro adds more features, but it doesn't raise any limit, because there isn't one.
 
-= How many maps and markers can I create? =
-As many as you like.  MapPress creates unlimited maps and unlimited markers, even in the free version.
+= Do I need a Google Maps API key? =
+No. MapPress includes free Leaflet maps using OpenFreeMap, which serves OpenStreetMap data and needs no API key. A key is only required if you choose the Google Maps or Mapbox engines. You can switch engines at any time without losing your maps.
 
 = Which map engine should I choose? =
-Choose Google Maps for Google's native maps (requires an API key).  Prefer a free, keyless option?  Leaflet maps using OpenStreetMap or OpenFreeMap need no API key or billing setup.  Mapbox is also supported.  Your maps are stored independently of the engine, so you can switch at any time without losing data.
+Leaflet maps using OpenFreeMap need no API key or billing setup, or choose Google Maps (which require an API key). Your maps are stored independently of the engine, so you can switch at any time without losing data.
 
 = Does MapPress work with the block editor, classic editor and page builders? =
 Yes.  MapPress includes a Gutenberg map block and full classic editor support, and you can place maps anywhere using a shortcode or directly in PHP.
 
 = Does MapPress set cookies or track visitors? =
-The free Leaflet maps using OpenFreeMap and OpenStreetMap set no cookies and do not track your visitors, so they require no cookie consent.  Google Maps and Mapbox may track users; if you use the Complianz consent plugin, MapPress integrates with it automatically to block those services until a visitor consents.
+The free Leaflet maps using OpenFreeMap set no cookies and do not track your visitors, so they require no cookie consent.  Google Maps and Mapbox may track users, but if you use the Complianz consent plugin, MapPress integrates with it automatically to block those services until a visitor consents.
 
 = Does MapPress work with caching plugins? =
 Yes.  If a map stops loading after enabling aggressive JavaScript optimization, exclude the MapPress scripts from minification or deferral.
@@ -111,6 +111,11 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 4. Creating a mashup
 
 == Changelog ==
+
+= 2.97.9 =
+* Changed: better handling for 'excerpt_more' filters for mashup POIs
+* Changed: improvements to the Pro updater, to prevent accidentally overwriting Pro with free version
+* Changed: POI 'more' links now open outside iframe for iframed maps
 
 = 2.97.8 =
 * Added: improve terms fetching for mashup block, applies to sites with large numbers of taxonomies and hosts limiting connections
