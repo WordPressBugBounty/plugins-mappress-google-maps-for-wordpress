@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.97.9
+Version: 2.97.10
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.97.9';
+	const VERSION = '2.97.10';
 
 	static
 		$api,
@@ -447,7 +447,8 @@ class Mappress {
 		else
 			$lang = self::$options->language;
 
-		return ($lang) ? $lang : null;
+		// WPML sets ICL_LANGUAGE_CODE to 'all' in the admin when the language filter is "All languages", which is invalid
+		return ($lang && $lang != 'all') ? $lang : null;        
 	}
 
 	/**

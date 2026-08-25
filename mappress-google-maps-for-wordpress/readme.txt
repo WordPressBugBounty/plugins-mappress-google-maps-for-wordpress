@@ -5,7 +5,7 @@ Tags: maps, google maps, leaflet, openstreetmap, mapbox
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.97.9
+Stable tag: 2.97.10
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,10 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 4. Creating a mashup
 
 == Changelog ==
+
+= 2.97.10 =
+* Changed: better labeling of the search box for the map editor 
+* Fixed: Google removed the drawing manager, breaking MapPress functionality
 
 = 2.97.9 =
 * Changed: better handling for 'excerpt_more' filters for mashup POIs
@@ -369,4 +373,7 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 * Fixed: error when changing KML icon
 * Fixed: error when using POI connecting lines
 
-== Upgrade Notice ==                             
+== Upgrade Notice ==     
+
+= 2.97.10 =
+Google removed the map drawing tools from their API. This update restores them. If your maps stopped displaying or you couldn't add markers or shapes in the editor, please update.                        
