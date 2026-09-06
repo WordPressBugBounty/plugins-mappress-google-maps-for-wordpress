@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.97.10
+Version: 2.97.11
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.97.10';
+	const VERSION = '2.97.11';
 
 	static
 		$api,
@@ -554,6 +554,7 @@ class Mappress {
 		// Register Gutenberg block types and load GT scripts
 		if (function_exists('register_block_type')) {
 			register_block_type('mappress/map', array(
+				'api_version' => 3,
 				'render_callback' => array(__CLASS__, 'shortcode_map'),
 				'editor_script' => array('mappress_admin'),
 				'style' => 'mappress',
@@ -561,6 +562,7 @@ class Mappress {
 			));
 			if (self::$pro) {
 				register_block_type('mappress/mashup', array(
+					'api_version' => 3,
 					'render_callback' => array(__CLASS__, 'shortcode_mashup'),
 					'editor_script' => array('mappress_admin'),
 					'style' => 'mappress',
@@ -1170,7 +1172,7 @@ class Mappress {
 
 		// Leaflet CSS
 		if (self::$options->engine == 'leaflet') {
-			$styles->add('mappress-leaflet', self::$baseurl . '/lib/leaflet/leaflet.css', null, '1.7.1');
+			$styles->add('mappress-leaflet', self::$baseurl . '/lib/leaflet/leaflet.css', null, '1.9.4');
 			$deps[] = 'mappress-leaflet';
 			
 			// Openfreemap / maplibre

@@ -13,6 +13,7 @@ class Mappress_Options extends Mappress_Obj {
 		$betas = false,
 		$clustering = false,
 		$clusteringOptions,
+		$columnPostTypes = array('post', 'page'),
 		$country,
 		$defaultIcon,
 		$deregister = true,
@@ -100,6 +101,10 @@ class Mappress_Options extends Mappress_Obj {
 	static function get() {
 		$options = get_option('mappress_options');
 
+		// columnPostTypes was split out of postTypes; preserve existing behavior on upgrade
+		if (is_array($options) && !array_key_exists('columnPostTypes', $options) && !empty($options['postTypes']))
+			$options['columnPostTypes'] = $options['postTypes'];
+					
 		// Force iframes
 		if (Mappress_Settings::iframes_required())
 			$options['iframes'] = true;

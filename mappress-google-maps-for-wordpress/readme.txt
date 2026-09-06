@@ -2,10 +2,10 @@
 Contributors: chrisvrichardson
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4339298
 Tags: maps, google maps, leaflet, openstreetmap, mapbox
-Requires at least: 6.2
-Tested up to: 7.0
+Requires at least: 6.3
+Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 2.97.10
+Stable tag: 2.97.11
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,12 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 4. Creating a mashup
 
 == Changelog ==
+
+= 2.97.11 =
+* Changed: multiple compatibility updates for the WP 7.1 iframed editor
+* Changed: you can now choose which post types display a 'map' colum independently from the geocoding settings
+* Changed: minimum WP version is now 6.3
+* Fixed: sidebar preview for poi list and filters was not working in Gutenberg editor
 
 = 2.97.10 =
 * Changed: better labeling of the search box for the map editor 
@@ -253,125 +259,6 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 * Added: corrected line colors in Leaflet KMLs
 * Added: mashup filter checkboxes now default from initial query values
 * Added: filter 'mappress_filter_values'
-
-= 2.94.15 =
-* Fixed: crash when displaying imported poi data input fields
-
-= 2.94.14 =
-* Added: settings now allow selecting OSM tiles with Mapbox geocoder
-
-= 2.94.13 =
-* Changed: Updated POI title display
-
-= 2.94.12 =
-* Try to prevent CORS errors on window search when displaying map in an embedded iframe
-
-= 2.94.11 = 
-* Changed: bump version number
-
-= 2.94.10 =
-* Fixed: added sanitization to size settings for site admins
-
-= 2.94.9 =
-* Changed: wider POI input data fields
-* Changed: remove 'show in popups' for POI data fields
-* Changed: in mini mode, default to show map on initial load instead of POI list
-
-= 2.94.8 =
-* Added: POI data values now support drag & drop
-* Fixed: updated sanitization to prevent html encoded content
-
-= 2.94.7 = 
-* Changed: updated compatible WP version
-
-= 2.94.6 =
-* Fixed: error in last release interfered with mashup queries
-
-= 2.94.5 =
-* Fixed: POI titles not working if they contain brackets
-
-= 2.94.4 =
-* Fixed: initial POI list open setting affected by mini view
-
-= 2.94.3 =
-* Fixed: bug in lat/lng check
-
-= 2.94.2 =
-* Fixed: sanitized lat/lng coordinates
-
-= 2.94.1 =
-* Fixed: mashups not displaying if no filters available
-
-= 2.94 =
-* Added: settings screen now includes default search/filter toggles for maps and mashups
-* Added: map editor now allows toggling search & filter for individual maps and mashups
-
-= 2.93 =
-* Fixed: escaping for poi data labels
-
-= 2.92.2 =
-* Added: warning message about siteground antibot system
-
-= 2.92.1 =
-* Changed: clicking anywhere in a POI popup now behaves the same as clicking its marker
-* Fixed: JS error from document panel due to changes in WP 6.6 full-site editor 
-
-= 2.91.6 =
-* Changed: allow iframe tags in POI body
-* Fixed: template "POI data" button was defaulting to custom fields instead of data fields
-
-= 2.91.5 =
-* Fixed: filters not displaying properly for single maps
-* Fixed: map not panning when opening POI that had been hovered with a tooltip 
-
-= 2.91.4 =
-* Fixed: clusters no re-rendering when filtering single map
-
-= 2.91.3 =
-* Fixed: popup not opening on KML POIs
-
-= 2.91.2 =
-* Fixed: data tab not scrolling when there are many POI data fields
-
-= 2.91.1 =
-* Added: text filter can now be separated from the main filters dropdown
-* Added: text filter can now search POI title or title+body 
-* Changed: rendering is now always via web component
-* Changed: removed CSS theme interference fixes, since WP editor requires some of them
-
-= 2.90.6 =
-* Fixed: Pro build reverted to free version due to new hosting
-* Fixed: magnifying glass icon missing from search box
-
-= 2.90.5 =
-* Fixed: map/list toggle buttons not showing on initial load
-* Fixed: console warning when multiple maps on same page
-* Fixed: travel lines not removed when all POIs are filtered 
-* Changed: search button moved inside search box, icon can now be controlled through CSS
-
-= 2.90.4 =
-* Added: menu hamburger control is suppressed when street view is active so it doesn't overlay streetview 'back' control
-* Changed: switch to OSM if mapbox style is used but mapbox token isn't present
-* Fixed: enabled filters for POI data
-* Fixed: minimap toggle not working due to error in layout resizeobserver
-
-= 2.90.3 =
-* Added: option to suppress KML POIs in POI list
-* Added: option to switch between terrain/satellite and regular map (Google only)
-* Changed: POI modal dialog now sizes to content instead of filling screen (size can be changed with class .mapp-dialog.mapp-modal)
-* Changed: updated directions form and POI swap icon
-
-= 2.90.2 =
-* Fixed: warnings in PHP 8.2 when importing
-* Fixed: error when downgrading to free version with filters defined
-
-= 2.90.1 = 
-* Added: new setting 'filtersOpen' to show filters initially opened
-* Added: support for latest site editor 
-* Added: support for latest site editor sidebar (when WP implements PluginDocumentSettingPanel for site editor) 
-* Changed: filters code refactored
-* Fixed: error when changing KML icon
-* Fixed: error when using POI connecting lines
 
 == Upgrade Notice ==     
 

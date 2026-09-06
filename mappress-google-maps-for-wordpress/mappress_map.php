@@ -124,7 +124,7 @@ class Mappress_Map extends Mappress_Obj {
 		add_action('deleted_user', array(__CLASS__, 'deleted_user'));		
 		
 		// Add post column filters for registered post types
-		$post_types = (Mappress::$options->postTypes) ? Mappress::$options->postTypes : array();
+		$post_types = (Mappress::$options->columnPostTypes) ? Mappress::$options->columnPostTypes : array();
 		foreach($post_types as $post_type) {
 			add_filter("manage_{$post_type}_posts_columns", array(__CLASS__, 'manage_posts_columns'));
 			add_action("manage_{$post_type}_posts_custom_column", array(__CLASS__, 'manage_posts_custom_column'), 10, 2);

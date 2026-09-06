@@ -214,6 +214,9 @@ class Mappress_Api extends WP_REST_Controller {
 		foreach(array('filter', 'oid', 'otype', 'page', 'page_size', 'search_text', 'sort_by', 'sort_asc') as $arg)
 			$$arg = $request->get_param($arg);
 			
+		// An unspecified otype means "post".  The widgets editor and customizer have no post context, so don't send it
+		$otype = ($otype) ? $otype : 'post';            
+
 		$where = " WHERE 1=1 ";
 
 		if ($otype == 'post') {
@@ -224,7 +227,7 @@ class Mappress_Api extends WP_REST_Controller {
 			$where .= " AND $maps_table.otype = 'post' ";
 		} else {
 			// User maps, not currently displayed in picker
-			$fields = "SELECT $maps_table.mapid, $maps_table.otype, $maps_table.oid, $maps_table.status, $maps_table.title, $wpdb->users.nicename as otitle ";
+			$fields = "SELECT $maps_table.mapid, $maps_table.otype, $maps_table.oid, $maps_table.status, $maps_table.title, $wpdb->users.user_nicename as otitle ";            
 			$from = " FROM $maps_table ";
 			$join = " LEFT OUTER JOIN $wpdb->users ON ($wpdb->users.ID = $maps_table.oid) ";
 			$where .= " AND $maps_table.otype = 'user' ";
@@ -236,7 +239,7 @@ class Mappress_Api extends WP_REST_Controller {
 
 		if ($search_text) {
 			// Can't use column alias in where
-			$otitle = ($otype == 'post') ? "$wpdb->posts.post_title" : "$wpdb->users.nicename";
+			$otitle = ($otype == 'post') ? "$wpdb->posts.post_title" : "$wpdb->users.user_nicename";            
 			$where .= $wpdb->prepare(" AND ($maps_table.mapid = %s OR $maps_table.title like '%%%s%%' OR $otitle like '%%%s%%') ", $search_text, $search_text, $search_text);
 		}
 
@@ -320,14 +323,14 @@ class Mappress_Api extends WP_REST_Controller {
 					'methods' => 'GET',
 					'callback' => array($this, 'get_maps'),
 					'permission_callback' => function() { return current_user_can(Mappress::cap()); },                    
-					'args' => array(
-						'filter' => array('sanitize_callback' => 'sanitize_title', 'default' => 'all'),
+					'args' => array(                    
+						'filter' => array('sanitize_callback' => 'sanitize_key', 'default' => 'all'),
 						'oid' => array('sanitize_callback' => 'absint', 'default' => null),   
-						'otype' => array('sanitize_callback' => 'sanitize_title', 'default' => 'post'),
+						'otype' => array('sanitize_callback' => 'sanitize_key', 'default' => 'post'),
 						'page' => array('sanitize_callback' => 'absint', 'default' => 1),
 						'page_size' => array('sanitize_callback' => 'absint', 'default' => 10),
 						'search_text' => array('sanitize_callback' => 'sanitize_text_field', 'default' => ''),                        
-						'sort_by' => array('sanitize_callback' => 'sanitize_title', 'default' => 'mapid'),
+						'sort_by' => array('sanitize_callback' => 'sanitize_key', 'default' => 'mapid'),
 						'sort_asc' => array('sanitize_callback' => 'rest_sanitize_boolean', 'default' => true),
 					),
 				),    
@@ -407,7 +410,7 @@ class Mappress_Api extends WP_REST_Controller {
 				'callback' => array($this, 'get_counts'),
 				'permission_callback' => function() { return current_user_can(Mappress::cap()); },                    
 				'args' => array(
-					'otype' => array('sanitize_callback' => 'sanitize_title'),
+					'otype' => array('sanitize_callback' => 'sanitize_key'),
 					'oid' => array('sanitize_callback' => 'absint'),
 				)
 
