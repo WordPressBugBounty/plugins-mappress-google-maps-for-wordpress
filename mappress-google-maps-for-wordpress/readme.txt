@@ -5,7 +5,7 @@ Tags: maps, google maps, leaflet, openstreetmap, mapbox
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 2.97.11
+Stable tag: 2.97.12
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,10 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 4. Creating a mashup
 
 == Changelog ==
+
+= 2.97.12 =
+* Fixed: bug causing settings page reload
+* Fixed: mashup block queries not updating properly
 
 = 2.97.11 =
 * Changed: multiple compatibility updates for the WP 7.1 iframed editor

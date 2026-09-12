@@ -500,8 +500,6 @@ __("Set");
 __("Center/Zoom");
 __("Viewport set");
 __("Viewport automatic");
-__("Enter style name");
-__("JSON");
 __("URL returned %s");
 __("URL returned invalid JSON");
 __("URL is unreachable, check if blocked by CORS policy");
