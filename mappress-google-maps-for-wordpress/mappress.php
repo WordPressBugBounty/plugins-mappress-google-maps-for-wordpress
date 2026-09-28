@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.97.12
+Version: 2.97.13
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -41,7 +41,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.97.12';
+	const VERSION = '2.97.13';
 
 	static
 		$api,
@@ -162,6 +162,23 @@ class Mappress {
 			} else {
 				$args = array('page' => 'mappress_support', 'wizard' => ($redirect == 'wizard') ? 1 : 0);
 				wp_safe_redirect(add_query_arg($args, admin_url('admin.php')));
+				exit;
+			}
+		}
+
+		// Check for expired license, at most once a week.  Admin-only: the notice is for the site owner,
+		// and admin_init runs before admin_notices, so it's displayed on this same request.
+		if (self::$pro && self::$options->license) {
+			$last_check = get_option('mappress_license_check');
+			if (!$last_check || time() > $last_check + (60 * 60 * 24 * 7)) {
+				// Stamp before the remote call so concurrent requests don't all call out
+				update_option('mappress_license_check', time());
+
+				if (Mappress::$updater->get_status() == 'inactive') {
+					$renew_link = sprintf("<a target='_blank' href='https://mappresspro.com/account'>%s</a>", __('Renew your license', 'mappress-google-maps-for-wordpress'));
+					self::admin_notices_dismiss('expiredlicense', false);
+					self::$notices['expiredlicense'] = array('error', sprintf(__('Your MapPress license has expired.  %s to get the latest updates and prevent errors.', 'mappress-google-maps-for-wordpress'), $renew_link));
+				}
 			}
 		}
 	}
@@ -245,22 +262,47 @@ class Mappress {
 			foreach($notices as $key => $notice)
 				printf($content, $notice[0], $key, $notice[1]);
 
-			if ($notices) {
+			// Handlers are printed in the footer, not here: anything that buffers and sanitizes the
+			// admin_notices hook would strip the script tag and leave its source visible as text
+			if ($notices)
+				add_action('admin_print_footer_scripts', array(__CLASS__, 'admin_notices_script'));
+		}
+	}
+
+	static function admin_notices_script() {
+		$nonce = wp_create_nonce('mappress');
+
+		// Delegated from document so the handlers survive a notice being relocated in the DOM
 				echo Mappress::script("
-					jQuery('[data-mapp-dismiss]').on('click', '.notice-dismiss, .mapp-dismiss', function(e) {
-						var key = jQuery(this).closest('.notice').attr('data-mapp-dismiss');
-						jQuery(this).closest('[data-mapp-dismiss]').remove();
-						jQuery.post(ajaxurl, { action : 'mapp_dismiss', key : key, nonce : '" . wp_create_nonce('mappress') . "' });
-					});
-					jQuery(document).on('click', '.mapp-snooze', function(e) {
+			document.addEventListener('click', function(e) {
+				if (!e.target || !e.target.closest)
+					return;
+
+				var el = e.target.closest('[data-mapp-dismiss] .notice-dismiss, [data-mapp-dismiss] .mapp-dismiss, [data-mapp-dismiss] .mapp-snooze');
+				if (!el)
+					return;
+
+				var notice = el.closest('[data-mapp-dismiss]'),
+					snooze = el.classList.contains('mapp-snooze');
+
+				if (snooze)
 						e.preventDefault();
-						jQuery(this).closest('.notice').remove();
-						jQuery.post(ajaxurl, { action : 'mapp_review_snooze', nonce : '" . wp_create_nonce('mappress') . "' });
+
+				fetch(ajaxurl, {
+					method : 'POST',
+					credentials : 'same-origin',
+					headers : { 'Content-Type' : 'application/x-www-form-urlencoded' },
+					body : new URLSearchParams({
+						action : snooze ? 'mapp_review_snooze' : 'mapp_dismiss',
+						key : notice.getAttribute('data-mapp-dismiss'),
+						nonce : '$nonce'
+					})
+				});
+
+				notice.remove();
 					});
 				");
 			}
-		}		
-	}
 
 	/**
 	* Dismiss/undismiss admin notices
@@ -273,18 +315,21 @@ class Mappress {
 		if (!$key)
 			return;
 
+		// Note: $dismissed is a list of notice names, so removal is by value, not by key
 		$dismissed = array_filter( explode( ',', (string) get_user_meta( get_current_user_id(), 'mappress_dismissed', true ) ) );
-		if ($dismiss)
+		if ($dismiss) {
+			if (!in_array($key, $dismissed, true))
 			$dismissed[] = $key;
-		else
-			unset($dismissed[$key]);
+		} else {
+			$dismissed = array_diff($dismissed, array($key));
+		}
 		update_user_meta( get_current_user_id(), 'mappress_dismissed', implode( ',', $dismissed ));
 	}
 
 	static function ajax_dismiss() {    
 		check_ajax_referer('mappress', 'nonce');            
 
-		// Still sent via jQuery
+		// Form-encoded POST from the notice handler in admin_notices_script()
 		$key = isset($_POST['key']) ? sanitize_key(wp_unslash($_POST['key'])) : null;
 			if (!$key) wp_die(0);        
 			
@@ -356,7 +401,7 @@ class Mappress {
 			'reason_text' => $reason_text,
 			'url' => trim(home_url()),
 		);
-		$response = wp_remote_post('https://mappresspro.com', array('timeout' => 15, 'sslverify' => false, 'body' => (array) $args));
+		$response = wp_remote_post('https://mappresspro.com', array('timeout' => 15, 'body' => (array) $args));
 	}
 
 	static function debugging() {
@@ -583,7 +628,7 @@ class Mappress {
 				'reason_text' => '',
 				'url' => trim(home_url()),
 			);
-			$response = wp_remote_post('https://mappresspro.com', array('timeout' => 15, 'sslverify' => false, 'body' => (array) $args));
+			$response = wp_remote_post('https://mappresspro.com', array('timeout' => 15, 'body' => (array) $args));
 		}
 
 		// Default geocoder if it's missing or using discontinued Algolia geocoder 
@@ -592,36 +637,26 @@ class Mappress {
 			self::$options->save();
 		}
 		
-		// Check for license expired
-		if (self::$pro && self::$options->license) {
-			$last_check = get_option('mappress_license_check');
-			if (!$last_check || time() > $last_check + (60 * 60 * 24 * 7)) {
-				$status = Mappress::$updater->get_status();
-				if ($status == 'inactive') {
-					$renew_link = sprintf("<a target='_blank' href='https://mappresspro.com/account'>%s</a>", __('Renew your license', 'mappress-google-maps-for-wordpress'));
-					self::admin_notices_dismiss('expiredlicense', false);
-					self::$notices['expiredlicense'] = sprintf(__('Your MapPress license has expired.  %s to get the latest updates and prevent errors.', 'mappress-google-maps-for-wordpress'), $renew_link);
-				}
-				update_option('mappress_license_check', time());
-				return;
-			}
-		}
+		// Expired license check moved to admin_init(): on this hook it ran on frontend requests too,
+		// where the notice is never displayed, and the weekly stamp then suppressed it for another week
 
 		// Missing license
 		if (self::$pro && empty(self::$options->license) && (!is_multisite() || (is_super_admin() && is_main_site())))
 			self::$notices['nolicense'] = array('warning', __('Please enter your MapPress license key to enable plugin updates', 'mappress-google-maps-for-wordpress'));
 
-		if ($current_version && $current_version < '2.55' && self::VERSION >= '2.55')
-			self::$notices['255_whats_new'] = array('info', sprintf(__('MapPress has many new features!  %s.', 'mappress-google-maps-for-wordpress'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more", 'mappress-google-maps-for-wordpress') . '</a>'));
+		// What's-new notices disabled until the /whats-new page is current
+		// if ($current_version && $current_version < '2.55' && self::VERSION >= '2.55')
+		// 	self::$notices['255_whats_new'] = array('info', sprintf(__('MapPress has many new features!  %s.'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more") . '</a>'));
 
-		if ($current_version && $current_version < '2.60' && self::VERSION >= '2.60')
-			self::$notices['260_whats_new'] = array('warning', sprintf(__('MapPress templates have changed!  Please update custom templates to the new format. %s.', 'mappress-google-maps-for-wordpress'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more", 'mappress-google-maps-for-wordpress') . '</a>'));
+		// if ($current_version && $current_version < '2.60' && self::VERSION >= '2.60')
+		// 	self::$notices['260_whats_new'] = array('warning', sprintf(__('MapPress templates have changed!  Please update custom templates to the new format. %s.'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more") . '</a>'));
 
 		// Upgrades
 		if ($current_version) {
 			if (version_compare($current_version, '2.63', '<')) {
 				// New list templates
-				self::$notices['263_whats_new'] = array('warning', sprintf(__('MapPress templates and filters have changed.  Please update custom templates and filters. %s.', 'mappress-google-maps-for-wordpress'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more", 'mappress-google-maps-for-wordpress') . '</a>'));
+				// What's-new notice disabled until the /whats-new page is current
+				// self::$notices['263_whats_new'] = array('warning', sprintf(__('MapPress templates and filters have changed.  Please update custom templates and filters. %s.'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more") . '</a>'));
 
 				// Convert filters to array
 				if (self::$options->filter) {
@@ -656,8 +691,9 @@ class Mappress {
 			}
 
 			// 2.76 New templates
-			if (version_compare($current_version, '2.76', '<'))
-				self::$notices['276_whats_new'] = array('warning', sprintf(__('MapPress templates have changed!  Please update custom templates to the new format. %s.', 'mappress-google-maps-for-wordpress'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more", 'mappress-google-maps-for-wordpress') . '</a>'));
+			// What's-new notice disabled until the /whats-new page is current
+			// if (version_compare($current_version, '2.76', '<'))
+			// 	self::$notices['276_whats_new'] = array('warning', sprintf(__('MapPress templates have changed!  Please update custom templates to the new format. %s.'), '<a target="_blank" href="https://mappresspro.com/whats-new">' . __("Learn more") . '</a>'));
 
 			// 2.80 - DB upgrade, filters and meta
 			if (version_compare($current_version, '2.80', '<')) {

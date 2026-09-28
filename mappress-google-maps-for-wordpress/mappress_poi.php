@@ -17,7 +17,7 @@ class Mappress_Poi extends Mappress_Obj {
 		$title = '',
 		$type,
 		$url,
-		$viewport;              // array('sw' => array('lat' => 0, 'lng' => 0), 'ne' => array('lat' => 0, 'lng' => 0))
+		$viewport;              // object: {sw: {lat, lng}, ne: {lat, lng}}
 
 	function to_html() {
 		$vars = (object) array_diff_key(get_object_vars($this), array('body' => ''));

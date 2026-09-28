@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the MapPress Google Maps and Leaflet Maps plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: MapPress Google Maps and Leaflet Maps 2.97.12\n"
+"Project-Id-Version: MapPress Google Maps and Leaflet Maps 2.97.13\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mappress-google-maps-for-wordpress\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-11T17:07:07+00:00\n"
+"POT-Creation-Date: 2026-09-28T03:06:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 
@@ -30,158 +30,137 @@ msgstr ""
 msgid "Chris Richardson"
 msgstr ""
 
-#: mappress.php:204
-#: mappress.php:897
+#: mappress.php:178
+msgid "Renew your license"
+msgstr ""
+
+#: mappress.php:180
+msgid "Your MapPress license has expired.  %s to get the latest updates and prevent errors."
+msgstr ""
+
+#: mappress.php:221
+#: mappress.php:933
 #: build/index_mappress_admin.js:1
 msgid "Settings"
 msgstr ""
 
-#: mappress.php:205
+#: mappress.php:222
 #: build/index_mappress_admin.js:1
 msgid "Maps"
 msgstr ""
 
-#: mappress.php:208
+#: mappress.php:225
 #: build/index_mappress_admin.js:1
 msgid "Import"
 msgstr ""
 
-#: mappress.php:209
+#: mappress.php:226
 #: build/index_mappress.js:1
 #: build/index_mappress_admin.js:1
 msgid "Support"
 msgstr ""
 
-#: mappress.php:212
+#: mappress.php:229
 #: build/index_mappress_admin.js:1
 msgid "Upgrade"
 msgstr ""
 
-#: mappress.php:225
+#: mappress.php:242
 msgid "MapPress database tables are missing.  Please deactivate the plugin and activate it again to fix this."
 msgstr ""
 
-#: mappress.php:230
+#: mappress.php:247
 msgid "A Google Maps API key is required"
 msgstr ""
 
-#: mappress.php:230
+#: mappress.php:247
 msgid "Please update your"
 msgstr ""
 
-#: mappress.php:230
+#: mappress.php:247
 msgid "MapPress Settings"
 msgstr ""
 
-#: mappress.php:235
+#: mappress.php:252
 msgid "Upgrade Now"
 msgstr ""
 
-#: mappress.php:236
+#: mappress.php:253
 msgid "Your MapPress data must be upgraded!  Please %s.</strong>"
 msgstr ""
 
-#: mappress.php:529
+#: mappress.php:574
 msgid "MapPress requires WordPress 6.2 or later. Please update WordPress."
 msgstr ""
 
-#: mappress.php:601
-msgid "Renew your license"
-msgstr ""
-
-#: mappress.php:603
-msgid "Your MapPress license has expired.  %s to get the latest updates and prevent errors."
-msgstr ""
-
-#: mappress.php:612
+#: mappress.php:645
 msgid "Please enter your MapPress license key to enable plugin updates"
 msgstr ""
 
-#: mappress.php:615
-msgid "MapPress has many new features!  %s."
-msgstr ""
-
-#: mappress.php:615
-#: mappress.php:618
-#: mappress.php:624
-#: mappress.php:660
-#: build/index_mappress_admin.js:1
-msgid "Learn more"
-msgstr ""
-
-#: mappress.php:618
-#: mappress.php:660
-msgid "MapPress templates have changed!  Please update custom templates to the new format. %s."
-msgstr ""
-
-#: mappress.php:624
-msgid "MapPress templates and filters have changed.  Please update custom templates and filters. %s."
-msgstr ""
-
-#: mappress.php:766
+#: mappress.php:802
 msgid "Are you sure you want to delete?"
 msgstr ""
 
-#: mappress.php:818
+#: mappress.php:854
 msgid "Streets"
 msgstr ""
 
-#: mappress.php:819
+#: mappress.php:855
 msgid "Outdoors"
 msgstr ""
 
-#: mappress.php:820
+#: mappress.php:856
 msgid "Light"
 msgstr ""
 
-#: mappress.php:821
-#: mappress.php:832
+#: mappress.php:857
+#: mappress.php:868
 msgid "Dark"
 msgstr ""
 
-#: mappress.php:822
-#: mappress.php:841
+#: mappress.php:858
+#: mappress.php:877
 #: build/index_mappress.js:1
 #: build/index_mappress_admin.js:1
 msgid "Satellite"
 msgstr ""
 
-#: mappress.php:823
+#: mappress.php:859
 msgid "Satellite Streets"
 msgstr ""
 
-#: mappress.php:829
+#: mappress.php:865
 msgid "Liberty"
 msgstr ""
 
-#: mappress.php:830
+#: mappress.php:866
 msgid "Bright"
 msgstr ""
 
-#: mappress.php:831
+#: mappress.php:867
 msgid "Positron"
 msgstr ""
 
-#: mappress.php:839
+#: mappress.php:875
 msgid "Roadmap"
 msgstr ""
 
-#: mappress.php:840
+#: mappress.php:876
 #: build/index_mappress.js:1
 #: build/index_mappress_admin.js:1
 msgid "Terrain"
 msgstr ""
 
-#: mappress.php:842
+#: mappress.php:878
 msgid "Hybrid"
 msgstr ""
 
-#: mappress.php:898
+#: mappress.php:934
 #: build/index_mappress_admin.js:1
 msgid "What's new"
 msgstr ""
 
-#: mappress.php:1332
+#: mappress.php:1368
 #: build/index_mappress_admin.js:1
 msgid "Version"
 msgstr ""
@@ -1971,6 +1950,10 @@ msgstr ""
 
 #: build/index_mappress_admin.js:1
 msgid "MapPress supports both Leaflet and Google mapping APIs."
+msgstr ""
+
+#: build/index_mappress_admin.js:1
+msgid "Learn more"
 msgstr ""
 
 #: build/index_mappress_admin.js:1
