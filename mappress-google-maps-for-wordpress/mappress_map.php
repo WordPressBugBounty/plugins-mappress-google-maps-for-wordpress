@@ -532,10 +532,11 @@ class Mappress_Map extends Mappress_Obj {
 			// Populate user fields
 			if ($this->otype == 'user') {
 				$user = get_userdata($oid);
-				$poi->email = $user->data->user_email;
-				$poi->name = $user->data->display_name;
-				$poi->images = array( (object) array('id' => $user->ID, 'type' => 'avatar'));
-				$poi->url = get_author_posts_url($user->ID);
+				if ($user) {
+					$poi->name = $user->data->display_name;
+					$poi->images = array( (object) array('id' => $user->ID, 'type' => 'avatar'));
+					$poi->url = get_author_posts_url($user->ID);
+				}
 			}
 
 			// Process oembeds and embed shortcodes ([embed], etc)

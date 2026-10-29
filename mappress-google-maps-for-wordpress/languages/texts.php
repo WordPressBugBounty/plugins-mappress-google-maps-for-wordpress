@@ -68,7 +68,6 @@ __("Distance");
 __("URL");
 __("Custom field");
 __("POI data field");
-__("Email");
 __("Display Name");
 __("Custom Field");
 __("Address or lat/lng was missing in ACF field");

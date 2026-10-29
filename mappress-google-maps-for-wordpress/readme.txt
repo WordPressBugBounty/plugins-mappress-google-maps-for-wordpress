@@ -5,7 +5,7 @@ Tags: maps, google maps, leaflet, openstreetmap, mapbox
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 2.97.14
+Stable tag: 2.97.15
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,7 +97,7 @@ Yes.  If a map stops loading after enabling aggressive JavaScript optimization, 
 Yes.  MapPress is WPML compatible, including translation of map and marker content.
 
 = How do I report a security issue? =
-Please [contact us](https://mappresspro.com/contact).  We respond promptly and credit reporters in the changelog.
+Please [contact us](https://mappresspro.com/contact).  Thanks to the security researchers who help keep MapPress safe, including vuxvinh and shovon.bd.
 
 = Where can I find documentation and support? =
 [Documentation](https://mappresspro.com/mappress-documentation)
@@ -105,12 +105,17 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 [Support](https://mappresspro.com/forums)
 
 == Screenshots ==
-1. MapPress settings page
-2. Map Library in Gutenberg
-3. Creating a map
-4. Creating a mashup
+1. Settings: choose Google Maps, Mapbox or free OpenStreetMap maps (no API key), plus styles and marker clustering
+2. Map Library: create and reuse unlimited maps right in the block editor
+3. Create a map in the Gutenberg editor: add markers, popups and directions
+4. Pro mashup block: one searchable map of locations from many posts
+5. Map block settings: size, center and zoom, with rich popups that can include photos and video
 
 == Changelog ==
+
+= 2.97.15 =
+* Fixed: user details could be exposed through the map embed URL
+* Changed: user mashup popups no longer show an email address 
 
 = 2.97.14 = 
 * Fixed: early return prevents map display
@@ -171,7 +176,6 @@ Please [contact us](https://mappresspro.com/contact).  We respond promptly and c
 = 2.97.2 = 
 * Fixed: invalid Nominatim geocoder with Google engine
 * Fixed: wp-cli error prevented translation file generation
-* Thanks to https://shovon.bd for security assistance in 2.97
 
 = 2.97.1 =
 * Bump version
