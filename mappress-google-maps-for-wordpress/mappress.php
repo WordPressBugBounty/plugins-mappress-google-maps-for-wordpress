@@ -5,7 +5,7 @@ Plugin URI: https://www.mappresspro.com
 Author URI: https://www.mappresspro.com
 Pro Update URI: https://www.mappresspro.com
 Description: MapPress makes it easy to add Google Maps and Leaflet Maps to WordPress
-Version: 2.97.15
+Version: 2.97.16
 Author: Chris Richardson
 Text Domain: mappress-google-maps-for-wordpress
 Thanks to all the translators and to Scott DeJonge for his wonderful icons
@@ -27,7 +27,8 @@ require_once dirname( __FILE__ ) . '/mappress_settings.php';
 include_once dirname( __FILE__ ) . '/mappress_template.php';
 include_once dirname( __FILE__ ) . '/mappress_wpml.php';
 
-if (is_dir(dirname( __FILE__ ) . '/pro')) {
+// define('MAPPRESS_FREE', true) in wp-config.php runs a Pro install as the free version, for testing
+if (is_dir(dirname( __FILE__ ) . '/pro') && !(defined('MAPPRESS_FREE') && MAPPRESS_FREE)) {
 	include_once dirname( __FILE__ ) . '/pro/mappress_filter.php';
 	include_once dirname( __FILE__ ) . '/pro/mappress_acf.php';
 	include_once dirname( __FILE__ ) . '/pro/mappress_geocoder.php';
@@ -41,7 +42,7 @@ if (is_dir(dirname( __FILE__ ) . '/pro')) {
 }
 
 class Mappress {
-	const VERSION = '2.97.15';
+	const VERSION = '2.97.16';
 
 	static
 		$api,
@@ -65,7 +66,7 @@ class Mappress {
 		self::$basename = plugin_basename(__FILE__);
 		self::$baseurl = plugins_url('', __FILE__);
 		self::$options = Mappress_Options::get();
-		self::$pro = is_dir(dirname( __FILE__ ) . '/pro');
+		self::$pro = is_dir(dirname( __FILE__ ) . '/pro') && !(defined('MAPPRESS_FREE') && MAPPRESS_FREE);
 		self::$version = (self::$pro) ? self::VERSION . "PRO" : self::VERSION;
 		self::$version = (defined('MAPPRESS_DEV') && MAPPRESS_DEV) ? self::$version . '-' . rand(0,99999) : self::$version;
 		self::$api = new Mappress_Api();
@@ -166,19 +167,30 @@ class Mappress {
 			}
 		}
 
-		// Check for expired license, at most once a week.  Admin-only: the notice is for the site owner,
-		// and admin_init runs before admin_notices, so it's displayed on this same request.
-		if (self::$pro && self::$options->license) {
+		// Expired license notice.  Admin page views only: admin_init also fires on admin-ajax.php (including visitors'
+		// frontend requests), where no notice can be shown.  The status is stored so the notice shows on every admin page.
+		if (self::$pro && self::$options->license && !wp_doing_ajax() && current_user_can('manage_options')) {
+			$status = get_option('mappress_license_status');
 			$last_check = get_option('mappress_license_check');
-			if (!$last_check || time() > $last_check + (60 * 60 * 24 * 7)) {
-				// Stamp before the remote call so concurrent requests don't all call out
-				update_option('mappress_license_check', time());
+			$weekly = (!$last_check || time() > $last_check + (60 * 60 * 24 * 7));
 
-				if (Mappress::$updater->get_status() == 'inactive') {
-					$renew_link = sprintf("<a target='_blank' href='https://mappresspro.com/account'>%s</a>", __('Renew your license', 'mappress-google-maps-for-wordpress'));
-					self::admin_notices_dismiss('expiredlicense', false);
-					self::$notices['expiredlicense'] = array('error', sprintf(__('Your MapPress license has expired.  %s to get the latest updates and prevent errors.', 'mappress-google-maps-for-wordpress'), $renew_link));
+			// Re-check weekly, on first run, and while inactive (the updater caches an inactive answer for 15 minutes), so a renewal clears the notice promptly
+			if ($weekly)
+				update_option('mappress_license_check', time());		// Stamp before the remote call so concurrent requests don't all call out
+			if ($weekly || $status === false || $status == 'inactive') {
+				$new_status = Mappress::$updater->get_status();
+				if ($new_status == 'active' || $new_status == 'inactive') {
+					$status = $new_status;
+					update_option('mappress_license_status', $status);
 				}
+			}
+
+			if ($status == 'inactive') {
+				// A dismissed notice comes back once a week
+				if ($weekly)
+					self::admin_notices_dismiss('expiredlicense', false);
+				$renew_link = sprintf("<a target='_blank' href='https://mappresspro.com/account'>%s</a>", __('Renew your license', 'mappress-google-maps-for-wordpress'));
+				self::$notices['expiredlicense'] = array('error', sprintf(__('Your MapPress license has expired.  %s to get the latest updates and prevent errors.', 'mappress-google-maps-for-wordpress'), $renew_link));
 			}
 		}
 	}
@@ -353,6 +365,8 @@ class Mappress {
 	
 	static function ajax_review_snooze() {
 		check_ajax_referer('mappress', 'nonce');
+		if (!current_user_can('manage_options'))
+			wp_die(-1);
 		update_option('mappress_review', time() + (60 * 60 * 24 * 45)); // ask again in 45 days
 		wp_die();
 	}    
@@ -502,17 +516,9 @@ class Mappress {
 	* @param mixed $atts
 	*/
 	static function get_mashup($atts) {
-		global $wp_query;
-													
 		$mashup = new Mappress_Map($atts);
 		$mashup->otype = (isset($atts['otype']) && $atts['otype'] == 'user') ? 'user' : 'post';
 		$mashup->query = Mappress_Query::parse_query($atts);
-
-		// If parameter test="true", output the query result (or global query) without using a map
-		if ( (isset($_GET['mp_test']) && current_user_can('manage_options')) || (isset($atts['test']) && $atts['test']) ) {
-			$wpq = ($mashup->query) ? new WP_Query($mashup->query) : $wp_query;
-			return "<pre>" . print_r($wpq, true) . "</pre>";
-		}
 
 		// If 'hideEmpty' is set, try to suppress the map if there are no POIs
 		if ($mashup->hideEmpty) {
@@ -569,9 +575,9 @@ class Mappress {
 	*
 	*/
 	static function init() {
-		// Check minimum version - mappress_db now requires 6.2		
-		if (version_compare(get_bloginfo('version'), '6.2', '<')) {
-			self::$notices['min_wp'] = array('error', __('MapPress requires WordPress 6.2 or later. Please update WordPress.', 'mappress-google-maps-for-wordpress'));
+		// Check minimum version
+		if (version_compare(get_bloginfo('version'), '6.3', '<')) {
+			self::$notices['min_wp'] = array('error', __('MapPress requires WordPress 6.3 or later. Please update WordPress.', 'mappress-google-maps-for-wordpress'));
 			return;
 		}
 				
@@ -1250,7 +1256,7 @@ class Mappress {
 
 		if (isset($args['mapid'])) {
 			$map = Mappress_Map::get($args['mapid']);
-			if (!$map)
+			if (!$map || $map->status == 'trashed')
 				die("<html><body><!-- Bad mapid --></body></html>");
 		} elseif (isset($args['transient'])) {
 			$mapdata = get_transient($args['transient']);
@@ -1271,10 +1277,13 @@ class Mappress {
 		$map->update($args);
 		$map->layout = 'left';
 
-		// Hydrate POIs for mashups
+		// Hydrate POIs for mashups.  The query comes from the request, so limit it to public posts.
+		// POIs are prepared here, once: the query prepares its own, other maps are prepared directly
 		if ($map->query) {
-			$result = Mappress_Query::query(array('query' => $map->query, 'otype' => $map->otype));
+			$result = Mappress_Query::query(array('query' => Mappress_Query::public_query($map->query), 'otype' => $map->otype));
 			$map->pois = $result->pois;
+		} else {
+			$map->prepare();
 		}
 
 		echo self::get_iframe($map);

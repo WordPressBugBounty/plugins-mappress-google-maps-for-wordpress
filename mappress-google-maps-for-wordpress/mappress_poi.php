@@ -85,6 +85,12 @@ class Mappress_Poi extends Mappress_Obj {
 			// Allow anchors in title
 			$allowed_html = array('a' => array('href' => true, 'title' => true));
 			$this->title = ($this->title) ? wp_kses(html_entity_decode($this->title, ENT_QUOTES, 'UTF-8'), $allowed_html) : $this->title;        
+
+			// Icon IDs are file names and addresses are plain text: both are output in templates
+			if (is_string($this->iconid))
+				$this->iconid = str_replace(array('"', "'", '<', '>', '`'), '', $this->iconid);
+			if (is_string($this->address))
+				$this->address = wp_strip_all_tags($this->address);
 		}
 	}
 		

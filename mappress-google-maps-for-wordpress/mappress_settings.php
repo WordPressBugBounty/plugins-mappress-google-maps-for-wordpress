@@ -463,6 +463,7 @@ class Mappress_Settings {
 			'preferences' => get_user_meta(get_current_user_id(), 'mappress_preferences', true),
 			'taxonomies' => self::get_taxonomies(),
 			'thumbnail_sizes' => self::get_thumbnail_sizes(),
+			'map_stats' => (Mappress::$pro) ? null : self::get_map_stats(),
 			'user_edit' => admin_url('user-edit.php')
 		);
 		// Php 8.2 doesn't like dynamic properties, so no $state->helpers = ...
@@ -471,6 +472,13 @@ class Mappress_Settings {
 
 		// JSON_HEX_TAG: this is echoed into an inline <script>, so '<' and '>' must be escaped - otherwise a '</script>' in a value (e.g. a license error message) ends the block         
 		return json_encode($state, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);        
+	}
+
+	// Free version: how many maps are attached to posts, used to make the Mashups preview specific to this site
+	static function get_map_stats() {
+		global $wpdb;
+		$maps_table = $wpdb->prefix . 'mapp_maps';
+		return $wpdb->get_row("SELECT COUNT(*) AS maps, COUNT(DISTINCT oid) AS posts FROM $maps_table WHERE otype = 'post' AND oid > 0 AND status != 'trashed'");
 	}
 
 	static function get_meta_fields() {

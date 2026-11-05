@@ -1,11 +1,11 @@
-=== MapPress – Google Maps, OpenStreetMap & Leaflet ===
+=== MapPress – Free Map Plugin for Google Maps & OpenStreetMap ===
 Contributors: chrisvrichardson
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4339298
 Tags: maps, google maps, leaflet, openstreetmap, mapbox
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 2.97.15
+Stable tag: 2.97.16
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,7 +45,7 @@ Upgrade to [MapPress Pro](https://mappresspro.com/mappress) for even more featur
 * Geocoders from Google, Nominatim, and Mapbox
 * KML map overlays
 * GPX tracks
-* Draw polygons, circles, and lines
+* Draw polygons, circles, and lines (Google Maps engine)
 * Generate maps using PHP
 * WPML compatible
 * MultiSite compatible
@@ -88,7 +88,7 @@ Leaflet maps using OpenFreeMap need no API key or billing setup, or choose Googl
 Yes.  MapPress includes a Gutenberg map block and full classic editor support, and you can place maps anywhere using a shortcode or directly in PHP.
 
 = Does MapPress set cookies or track visitors? =
-The free Leaflet maps using OpenFreeMap set no cookies and do not track your visitors, so they require no cookie consent.  Google Maps and Mapbox may track users, but if you use the Complianz consent plugin, MapPress integrates with it automatically to block those services until a visitor consents.
+MapPress itself sets no cookies and doesn't track visitors. Its default maps load tiles from OpenFreeMap, which says it uses no cookies. Google Maps and Mapbox may track users, but with the Complianz consent plugin, MapPress blocks them until a visitor consents.
 
 = Does MapPress work with caching plugins? =
 Yes.  If a map stops loading after enabling aggressive JavaScript optimization, exclude the MapPress scripts from minification or deferral.
@@ -105,13 +105,29 @@ Please [contact us](https://mappresspro.com/contact).  Thanks to the security re
 [Support](https://mappresspro.com/forums)
 
 == Screenshots ==
-1. Settings: choose Google Maps, Mapbox or free OpenStreetMap maps (no API key), plus styles and marker clustering
-2. Map Library: create and reuse unlimited maps right in the block editor
-3. Create a map in the Gutenberg editor: add markers, popups and directions
-4. Pro mashup block: one searchable map of locations from many posts
-5. Map block settings: size, center and zoom, with rich popups that can include photos and video
+1. Store locations map with custom markers (Pro) on free OpenStreetMap maps, no API key
+2. Unlimited maps in the map library, with no cap and no upgrade required
+3. Map editor: add markers, popups, photos and directions
+4. Google Maps or OpenStreetMap map block in the WordPress block editor
+5. Pro: searchable store locator showing locations from many posts on one map
+6. Settings: choose Google Maps or free OpenStreetMap maps with no API key
+7. Clustering: group nearby markers, choose the zoom where clustering stops, and split up markers at the same location (spiderfy)
+8. Pro: search settings: search radius, country, bounding box and placeholder text, plus centering the map on the visitor's location
+9. Pro: filters for mashups and maps, by post type, category, tag or custom field
 
 == Changelog ==
+
+= 2.97.16 =
+* Added: templates support {{#field}}...{{/field}} blocks that show only when a field has a value ({{^field}} for empty), and hyphenated custom field names
+* Removed: mashup "test" debugging attribute and mp_test parameter
+* Changed: icon IDs and addresses are sanitized when maps are saved
+* Changed: only administrators can snooze the review notice
+* Changed: template delete is limited to MapPress templates and respects DISALLOW_FILE_EDIT
+* Changed: standard templates updated to support a Content-Security-Policy without 'unsafe-eval'
+* Fixed: mashup embed URL could show maps for private posts
+* Fixed: trashed maps could be displayed through the embed URL
+* Fixed: expired license notice now shows on every admin page until the license is renewed
+* Fixed: iframe maps processed POI content twice
 
 = 2.97.15 =
 * Fixed: user details could be exposed through the map embed URL

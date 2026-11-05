@@ -56,8 +56,16 @@ class Mappress_Template extends Mappress_Obj {
 		check_ajax_referer('mappress', 'nonce');
 		if (!current_user_can('manage_options')) Mappress::ajax_response('Not authorized');
 
+		if ((defined('DISALLOW_FILE_EDIT') && DISALLOW_FILE_EDIT) || (defined('DISALLOW_FILE_MODS') && DISALLOW_FILE_MODS))
+			Mappress::ajax_response('Unable to delete, DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS has been set in wp-config');
+
 		$args = isset($_POST['data']) ? json_decode(wp_unslash($_POST['data'])) : null;
 		$name = ($args && isset($args->name)) ? $args->name : '';        
+
+		// Only MapPress templates can be deleted
+		if (!file_exists(Mappress::$basedir . '/templates/' . basename(sanitize_text_field((string) $name)) . '.php'))
+			Mappress::ajax_response('Invalid template name');
+
 		$filepath = self::get_ajax_filepath($name);
 
 		$result = @unlink($filepath);
@@ -208,7 +216,7 @@ class Mappress_Template extends Mappress_Obj {
 			if (!is_string($template) || $template === '') 
 				continue;            
 
-			preg_match_all("/{{(poi.props[\s\S]+?)}}/", $template, $matches);
+			preg_match_all("/{{[#^\/]?\s*(poi\.props[\s\S]+?)\s*}}/", $template, $matches);	// Includes {{#poi.props.x}} sections
 			if ($matches[1])
 				$tokens = array_merge($tokens, $matches[1]);
 		}

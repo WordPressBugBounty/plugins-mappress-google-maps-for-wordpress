@@ -334,8 +334,9 @@ class Mappress_Map extends Mappress_Obj {
 				. "<iframe class='mapp-iframe ' src='$url' scrolling='no' loading='lazy'></iframe>"
 				. "</div>";
 		} else {       
-			// Prepare POIs
-			$this->prepare();
+			// Prepare POIs.  Inside an iframe, template_redirect() has already prepared them
+			if (!$in_iframe)
+				$this->prepare();
 			
 			if ($in_iframe) {
 				// For Component inside iframe, alignment class and style (height/width) are applied to wrapper, not component
