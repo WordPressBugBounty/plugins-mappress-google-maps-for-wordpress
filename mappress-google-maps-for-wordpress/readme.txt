@@ -1,15 +1,15 @@
 === MapPress – Free Map Plugin for Google Maps & OpenStreetMap ===
 Contributors: chrisvrichardson
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4339298
-Tags: maps, google maps, leaflet, openstreetmap, mapbox
+Tags: map, maps, google maps, openstreetmap, leaflet
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 2.97.16
+Stable tag: 2.97.17
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Unlimited maps and markers. Free, no API key, no setup. Google Maps, Leaflet, OpenStreetMap & Mapbox. Map editor, blocks and store locators.
+Free map plugin: unlimited maps and markers, no API key, no cookies from MapPress. Google Maps, OpenStreetMap & Mapbox. Map blocks, store locators.
 
 == Description ==
 MapPress is the easiest way to add beautiful interactive maps to WordPress, with Gutenberg map blocks and classic editor support.
@@ -18,9 +18,11 @@ Create unlimited maps and markers in the free version, with no upgrade required.
 
 Pick the map service that fits you: Google Maps, or free keyless Leaflet maps using OpenFreeMap (OpenStreetMap data) — no API key required. Mapbox is also supported.
 
-Perfect for contact pages, store and office locations, real estate listings, travel routes, delivery areas and directories.
+Privacy friendly for GDPR (DSGVO): MapPress itself sets no cookies and doesn't track your visitors. The free maps use OpenStreetMap data and tiles from OpenFreeMap, which says it uses no cookies.
 
-Upgrade to [MapPress Pro](https://mappresspro.com/mappress) for even more features, including custom icons (with a built-in icon editor!), search and filter, mashups, and much more.  See it in action on the [MapPress Home Page](https://mappresspro.com/mappress) or test it yourself with a [Free Demo Site](https://mappresspro.com/demo)!
+Add one location or hundreds: there is no limit on markers per map. Perfect for contact pages, store and office locations, real estate listings, travel routes, delivery areas and directories.
+
+Upgrade to [MapPress Pro](https://mappresspro.com/mappress) to build a store locator, show your posts on a map, let visitors search and filter locations by category, and use custom marker icons (with a built-in icon editor!).  See it in action on the [MapPress Home Page](https://mappresspro.com/mappress) or test it yourself with a [Free Demo Site](https://mappresspro.com/demo)!
 
 [Home Page](https://mappresspro.com/mappress)
 [What's New](https://mappresspro.com/whats-new)
@@ -63,7 +65,7 @@ Upgrade to [MapPress Pro](https://mappresspro.com/mappress) for even more featur
 * Advanced Custom Fields (ACF) integration
 
 = Localization =
-Please [Contact me](https://mappresspro.com/contact) to provide a translation.  Many thanks to all the folks who have created and updated translations.
+MapPress is translated by volunteers. You can help translate it into your language at [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/mappress-google-maps-for-wordpress/).  Many thanks to everyone who has created and updated translations.
 
 == Installation ==
 1. Install and activate the plugin through the 'Plugins' menu in WordPress
@@ -81,13 +83,28 @@ No. The free version allows unlimited maps and markers — no cap, and no upgrad
 = Do I need a Google Maps API key? =
 No. MapPress includes free Leaflet maps using OpenFreeMap, which serves OpenStreetMap data and needs no API key. A key is only required if you choose the Google Maps or Mapbox engines. You can switch engines at any time without losing your maps.
 
+= How do I add a map with multiple locations? =
+Add a MapPress block to your page (or use the MapPress box in the classic editor), then add a marker for each location by searching for its address. There is no limit on markers per map. To show locations from many posts on one map, see "Can I show my posts on a map?" below.
+
+= Can I build a store locator? =
+Yes, with [MapPress Pro](https://mappresspro.com/mappress). The mashup block shows locations from many posts on one map with a list of results, location search with a search radius, centering on the visitor's location, and filters.
+
+= Can visitors search and filter locations by category? =
+Yes, with MapPress Pro. Visitors can search by location and filter by post type, category, tag or custom field.
+
+= Can I show my posts on a map? =
+Yes, with MapPress Pro. Add a map to each post, then use a mashup to show them all on one map. Mashups work with any post type and can be limited by category, tag or custom field.
+
+= Can I use custom marker icons? =
+Yes, with MapPress Pro. Upload your own icons or design them in the built-in icon editor, and assign icons automatically by category, tag or taxonomy.
+
 = Which map engine should I choose? =
 Leaflet maps using OpenFreeMap need no API key or billing setup, or choose Google Maps (which require an API key). Your maps are stored independently of the engine, so you can switch at any time without losing data.
 
 = Does MapPress work with the block editor, classic editor and page builders? =
 Yes.  MapPress includes a Gutenberg map block and full classic editor support, and you can place maps anywhere using a shortcode or directly in PHP.
 
-= Does MapPress set cookies or track visitors? =
+= Is MapPress GDPR compliant? Does it set cookies or track visitors? =
 MapPress itself sets no cookies and doesn't track visitors. Its default maps load tiles from OpenFreeMap, which says it uses no cookies. Google Maps and Mapbox may track users, but with the Complianz consent plugin, MapPress blocks them until a visitor consents.
 
 = Does MapPress work with caching plugins? =
@@ -116,6 +133,13 @@ Please [contact us](https://mappresspro.com/contact).  Thanks to the security re
 9. Pro: filters for mashups and maps, by post type, category, tag or custom field
 
 == Changelog ==
+
+= 2.97.17 =
+* Added: map and mashup shortcodes accept 'units' (metric or imperial) and 'radius' (search radius, in those units), e.g. [mashup search="true" units="imperial" radius="25"]
+* Fixed: distances in the POI list were calculated in miles but labelled km
+* Fixed: clicking the map did not close popups on OpenFreeMap maps
+* Fixed: when a map is resized, an open popup now stays inside the map and the location list updates
+* Updated: complete translations for German, Japanese, Italian, Dutch, Spanish, Czech and Brazilian Portuguese
 
 = 2.97.16 =
 * Added: templates support {{#field}}...{{/field}} blocks that show only when a field has a value ({{^field}} for empty), and hyphenated custom field names

@@ -22,10 +22,12 @@ class Mappress_Map extends Mappress_Obj {
 		$otype,
 		$poiList,
 		$query,
+		$radius,
 		$search,
 		$status,
 		$style, 
 		$title,
+		$units,
 		$width,
 		$zoom
 		;
